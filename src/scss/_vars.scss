@@ -1,0 +1,72 @@
+$light_pink: #eddedf;
+$black-shadows: #ccbac3ff;
+$lilac: #ac95a6ff;
+$dark_pink: #8b718aff;
+$purple: #6a4d6dff;
+$violet: #4a2851ff;
+$hard_purple: #510ab2;
+$dark: #181818;
+$blue: #3b3a62;
+$dark_purple: #290434;
+
+@mixin vw_fraction($frac: 3, $width: 1) {
+  width: calc(100vw / $cols * $width);
+}
+
+@mixin font_tiny {
+  font-size: 1.25rem;
+  line-height: 1rem;
+  font-family: 'compagnie wide';
+
+  @media screen and (max-width: 650px) {
+    font-size: 1rem;
+  }
+
+  @media screen and (max-width: 500px) {
+    font-size: 0.75rem;
+  }
+}
+
+@mixin font_small {
+  font-size: 3vw;
+  line-height: 2.4vw;
+  font-family: 'compagnie wide';
+}
+
+@mixin font_medium {
+  font-size: 4vw;
+  line-height: 3.2vw;
+  font-family: 'compagnie wide';
+}
+
+@mixin font_big {
+  font-family: 'druk';
+  text-transform: uppercase;
+  font-size: 8vw;
+  line-height: 5.9vw;
+}
+
+@mixin font_huge {
+  font-family: 'druk';
+  font-size: 8vw;
+  text-transform: uppercase;
+}
+
+@mixin font_track_title {
+  font-family: 'druk';
+  font-size: 12vw;
+  letter-spacing: 4px;
+}
+
+@mixin block_padding {
+  padding: 3rem;
+  overflow: hidden;
+
+  @media only screen and (max-width: 650px) {
+    padding: 1.25rem;
+  }
+
+  @media only screen and (max-width: 500px) {
+    padding: 1rem;
+  }
+}
