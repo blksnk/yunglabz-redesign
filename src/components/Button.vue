@@ -57,7 +57,7 @@ export default {
     transition: 0.2s color linear;
 
     &::after {
-      background-color: $dark_pink;
+      background-color: $hard_purple;
       height: 2px;
       width: 100%;
       transform-origin: right;
@@ -68,7 +68,7 @@ export default {
 
   &::after {
     top: 0;
-    border: 1px solid $dark_purple;
+    border: 1px solid $dark_pink;
     border-radius: 100%;
     transform-origin: center center;
   }
@@ -79,7 +79,7 @@ export default {
   }
 
   &:hover span {
-    color: $dark_pink;
+    color: $light_pink;
   }
 
   &:hover span::after {

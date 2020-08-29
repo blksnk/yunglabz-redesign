@@ -25,6 +25,7 @@ export default {
 @import '@/scss/_vars.scss';
 
 #cover {
+  @include block_padding;
   height: 100vh;
   width: 100%;
   max-width: 100%;

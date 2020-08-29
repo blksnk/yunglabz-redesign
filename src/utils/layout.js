@@ -46,3 +46,7 @@ export function getPos(el) {
 export function getDimensions(el) {
   return el.getBoundingClientRect();
 }
+
+export function numToPx(num) {
+  return `${String(num)}px`;
+}

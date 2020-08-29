@@ -11,36 +11,36 @@ export default new Vuex.Store({
       {
         title: 'Meta',
         audioUrl: '',
-        visuUrl:
+        loopUrl:
           'https://i.pinimg.com/originals/73/55/f9/7355f972664a1a9edcd433d907845dc2.jpg',
       },
       {
         title: 'overdrive',
         audioUrl: '',
-        visuUrl:
+        loopUrl:
           'https://hdwallpaperim.com/wp-content/uploads/2017/08/24/104588-glitch_art-pixel_sorting-clouds.jpg',
       },
       {
         title: 'glitch',
         audioUrl: '',
-        visuUrl: 'https://i.imgur.com/hcNjXva.jpg',
+        loopUrl: 'https://i.imgur.com/hcNjXva.jpg',
       },
       {
         title: 'quartier',
         audioUrl: '',
-        visuUrl:
+        loopUrl:
           'https://c4.wallpaperflare.com/wallpaper/837/544/905/glitch-art-sea-landscape-nature-wallpaper-preview.jpg',
       },
       {
-        title: 'hypothèse',
+        title: 'hypothese',
         audioUrl: '',
-        visuUrl:
+        loopUrl:
           'https://live.staticflickr.com/7911/33649754258_c57ac95bcc_b.jpg',
       },
       {
         title: 'crypt',
         audioUrl: '',
-        visuUrl:
+        loopUrl:
           'https://wallup.net/wp-content/uploads/2016/05/25/242470-glitch_art.jpg',
       },
     ],
@@ -51,6 +51,9 @@ export default new Vuex.Store({
     },
     setPlayStatus(state, payload) {
       state.isPlaying = payload;
+    },
+    setTracks(state, payload) {
+      state.tracks = payload;
     },
   },
   actions: {

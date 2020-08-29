@@ -2,9 +2,10 @@
   <div id="app">
     <main ref="main">
       <Cover />
-      <!-- <Spacer /> -->
-      <Tracklist v-on:scaled="updateLS" />
-      <Cover />
+      <Spacer />
+      <Tracks v-on:updateLS="updateLS" />
+      <Spacer />
+      <Tracklist />
     </main>
     <!-- <NavBar></NavBar> -->
     <img src="@/assets/img/wrap.png" id="wrap" alt="" />
@@ -15,15 +16,18 @@
 import Locomotive from 'locomotive-scroll';
 
 import Cover from '@/views/Cover.vue';
-import Tracklist from '@/views/Tracks.vue';
-// import Spacer from '@/components/Spacer.vue';
+import Tracklist from '@/views/Tracklist.vue';
+import Tracks from '@/views/Tracks.vue';
+import Spacer from '@/components/Spacer.vue';
+import { fetchAll } from '@/utils/fetchers.js';
 // import NavBar from '@/components/NavBar.vue';
 
 export default {
   components: {
     Cover,
     Tracklist,
-    // Spacer,
+    Tracks,
+    Spacer,
     // NavBar,
   },
   data() {
@@ -34,6 +38,7 @@ export default {
   },
   methods: {
     initLS() {
+      console.log('init LS');
       this.locomotive = new Locomotive({
         el: this.$refs.main,
         smooth: true,
@@ -51,15 +56,21 @@ export default {
     updateLS() {
       if (this.locomotive) {
         this.locomotive.update();
+      } else {
+        this.initLS();
       }
     },
     setActiveTrack(i) {
       this.$store.commit('setTrackIndex', i);
     },
+    async fetchData() {
+      const { tracks } = await fetchAll();
+      console.log(tracks);
+      // this.$store.commit('setTracks', tracks);
+    },
   },
-  mounted() {
-    this.initLS();
-    window.addEventListener('resize', this.updateLS);
+  created() {
+    this.fetchData();
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.updateLS);
@@ -90,6 +101,11 @@ export default {
   src: url('./assets/fonts/DrukWideBold.woff2') format('woff2');
 }
 
+@font-face {
+  font-family: 'accent';
+  src: url('./assets/fonts/accent.ttf') format('truetype');
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -97,6 +113,7 @@ export default {
   border: none;
   user-select: none;
   background: none;
+  font-weight: normal;
 
   &:focus {
     outline: none;
@@ -120,7 +137,8 @@ h2 {
 }
 
 h3 {
-  @include font_big;
+  @include font_medium;
+  text-transform: uppercase;
   color: $purple;
 }
 
@@ -156,7 +174,8 @@ li {
 #app {
   width: 100%;
   height: 100vh;
-  @include block_padding;
+  overflow: hidden;
+  padding-bottom: 12rem;
   background-image: linear-gradient(
     to bottom,
     $dark,
@@ -180,5 +199,61 @@ li {
   pointer-events: none;
   user-select: none;
   z-index: 40;
+}
+
+html.has-scroll-smooth {
+  overflow: hidden;
+}
+
+html.has-scroll-dragging {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.has-scroll-smooth body {
+  overflow: hidden;
+}
+
+.has-scroll-smooth [data-scroll-container] {
+  min-height: 100vh;
+}
+
+.c-scrollbar {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 11px;
+  height: 100vh;
+  transform-origin: center right;
+  transition: transform 0.3s, opacity 0.3s;
+  opacity: 0;
+}
+.c-scrollbar:hover {
+  transform: scaleX(1.45);
+  opacity: 1;
+}
+.c-scrollbar:hover,
+.has-scroll-scrolling .c-scrollbar,
+.has-scroll-dragging .c-scrollbar {
+  opacity: 1;
+}
+
+.c-scrollbar_thumb {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: $hard_purple;
+  opacity: 0.75;
+  width: 7px;
+  border-radius: 10px;
+  margin: 2px;
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+.has-scroll-dragging .c-scrollbar_thumb {
+  cursor: -webkit-grabbing;
+  cursor: grabbing;
 }
 </style>

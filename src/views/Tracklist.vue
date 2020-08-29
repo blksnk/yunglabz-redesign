@@ -1,69 +1,60 @@
 <template>
   <section id="tracklist">
-    <h3 id="title">track list</h3>
-
-    <div id="controls">
-      <Button
-        title="play"
-        activeTitle="pause"
-        :active="isPlaying"
-        @click="playPause"
-      />
+    <div id="aside">
+      <span>
+        tracklist
+        <br />
+        meta volume 1 &mdash; yunglabz
+      </span>
+      <div id="line"></div>
     </div>
 
-    <div id="counter">
-      <div id="current">
-        <span class="min">00</span>
-        <span class="sec">00</span>
+    <main>
+      <div id="controls">
+        <span id="active_track_title">
+          {{ activeTrack.title }}
+        </span>
+
+        <Button
+          id="play_btn"
+          title="play"
+          activeTitle="pause"
+          :active="isPlaying"
+          @click="playPause"
+        />
+        <div id="progress">
+          <div id="bar"></div>
+        </div>
       </div>
-      <div id="outof">
-        <span id="slash">/</span>
-        <span class="min">00</span>
-        <span class="sec">00</span>
-      </div>
-    </div>
 
-    <ul id="list">
-      <li
-        v-for="(track, index) in tracks"
-        :key="'tracktitle' + index"
-        :class="{ active: trackIndex === index }"
-        @click="() => setTrackIndex(index)"
-      >
-        {{ track.title }}
-      </li>
-    </ul>
+      <ul id="list">
+        <li
+          v-for="(track, index) in tracks"
+          :key="'tracktitle' + index"
+          :class="{ active: trackIndex === index && isPlaying }"
+          @click="() => setTrackIndex(index)"
+        >
+          <h3 class="track_title">
+            {{ track.title }}
+          </h3>
 
-    <img
-      id="img"
-      :src="activeTrack.visuUrl"
-      :key="'thumb' + trackIndex"
-      alt=""
-    />
+          <span class="artist">yunglabz</span>
 
+          <span class="track_duration">3:42</span>
+        </li>
+      </ul>
+    </main>
     <audio
       src="/aokigahara.mp3"
-      @timeupdate="onTimeUpdate"
       @loadedmetadata="getDuration"
       controls
       ref="audio"
     ></audio>
-    <div id="audio_vis" ref="audioVis">
-      <av-line
-        :line-width="1"
-        line-color="#FFFFFF"
-        ref-link="audio"
-        canv-class="audio-canvas"
-        :canv-width="audioSize.width"
-        :canv-height="audioSize.height"
-      ></av-line>
-    </div>
   </section>
 </template>
 
 <script>
 import Button from '@/components/Button.vue';
-import { getDimensions, rem } from '@/utils/layout';
 
 export default {
   name: 'Tracklist',
@@ -96,57 +87,8 @@ export default {
       }
       this.$store.dispatch('playPause');
     },
-    onTimeUpdate() {
-      // console.log(e);
-      console.dir(this.$refs.audio);
-    },
-    setAnalyser() {
-      this.audioCtx = new AudioContext();
-      this.analyser = this.audioCtx.createAnalyser();
-      const src = this.audioCtx.createMediaElementSource(
-        this.activeTrack.audioUrl,
-      );
-
-      src.connect(this.analyser);
-      // this.analyser.fftSize = this.fftSize
-      this.analyser.connect(this.audioCtx.destination);
-    },
-    updateCurrentTrack() {
-      this.destroyAnalyser();
-    },
-    destroyAnalyser() {
-      if (this.audioCtx) {
-        this.audioCtx.suspend();
-      }
-    },
-    onClick() {
-      if (!this.audioCtx) this.setAnalyser();
-    },
-    onPlay() {
-      if (!this.audioCtx) this.setAnalyser();
-      this.mainLoop();
-      if (this.audioCtx) {
-        // not defined for waveform
-        this.audioCtx.resume();
-      }
-    },
-    onPause() {
-      if (this.audioCtx) {
-        this.audioCtx.suspend();
-      }
-    },
     getDuration() {
       this.duration = this.$refs.audio.duration;
-    },
-    setAudioSize() {
-      let { width, height } = getDimensions(this.$refs.audioVis);
-      height -= 1.5 * rem();
-      width -= 1.5 * rem();
-      console.log(width, height);
-      this.audioSize = {
-        height,
-        width,
-      };
     },
   },
   computed: {
@@ -163,10 +105,7 @@ export default {
       return this.$store.state.isPlaying;
     },
   },
-  mounted() {
-    this.setAudioSize();
-    window.addEventListener('resize', this.setAudioSize);
-  },
+  mounted() {},
 };
 </script>
 
@@ -174,112 +113,127 @@ export default {
 @import '@/scss/_vars.scss';
 
 #tracklist {
-  display: grid;
-  height: 100vh;
-  max-height: 100vh;
-  background-color: $light_pink;
-  border-top: 1px solid $purple;
+  @include block_padding;
+  display: flex;
+  color: $light_pink;
+  width: 100%;
+  min-height: 100vh;
+  padding-bottom: 12rem;
 
-  grid-template-columns: repeat(5, 1fr) auto auto;
-  grid-template-rows: auto 1fr 0.3fr;
-
-  & > * {
-    @include block_padding;
-  }
-
-  #title {
-    grid-column: 1 / span 4;
-    grid-row: 1 / span 1;
-    border-right: 1px solid $purple;
-    border-bottom: 1px solid $purple;
-    white-space: nowrap;
-  }
-
-  #controls {
-    grid-column: 5 / span 2;
-    grid-row: 1 / span 1;
-    border-right: 1px solid $purple;
-    border-bottom: 1px solid $purple;
-    width: 100%;
-  }
-
-  #counter {
-    grid-column: 7 / span 1;
-    grid-row: 1 / span 1;
-    border-bottom: 1px solid $purple;
+  #aside {
+    min-height: calc(100vh - 6rem);
     display: flex;
+    flex-direction: column;
     align-items: flex-end;
-    justify-content: center;
 
-    #current {
-      display: flex;
-      flex-direction: column;
+    #line {
+      width: 1px;
+      flex-grow: 1;
+      margin-right: 0.7rem;
+      background-image: linear-gradient(
+        to bottom,
+        $lilac,
+        $hard_purple
+      );
     }
 
     span {
-      font-family: 'compagnie wide';
-    }
-
-    #current span {
-      @include font_medium;
-      color: $purple;
-      line-height: 2.5vw;
-      margin-top: 0.7vw;
-    }
-
-    #outof span {
       @include font_tiny;
       color: $lilac;
-    }
-
-    #slash {
-      margin: 0 0.5rem;
-      color: $black-shadows;
+      text-orientation: mixed;
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      margin-bottom: 1.5rem;
     }
   }
 
-  #list {
-    grid-column: 1 / span 3;
-    grid-row: 2 / span 1;
-    border-right: 1px solid $purple;
+  main {
+    @include block_padding;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    flex: 1;
 
-    li {
-      @include font_medium;
-      color: $lilac;
-      margin-bottom: 1.3rem;
-      text-transform: uppercase;
-      transition: 0.2s color linear;
+    #controls {
+      padding: 6rem;
+      position: sticky;
+      top: 0;
 
-      &.active,
-      &:hover {
-        color: $purple;
-        transition-duration: 0s;
+      display: grid;
+      grid-column-gap: 1.5rem;
+      grid-row-gap: 3rem;
+      grid-template-columns: max-content 1fr;
+      grid-template-rows: auto 3rem;
+
+      #active_track_title {
+        @include font_big;
+        grid-column: 1 / -1;
+        grid-row: 1 / 1;
+
+        .marquee_text {
+          margin-right: 3rem;
+        }
+      }
+
+      #play_btn {
+        grid-column: 1 / 1;
+        grid-row: 2 / 2;
+      }
+
+      #progress {
+        grid-column: 2 / 2;
+        grid-row: 2 / 2;
       }
     }
   }
 
-  #img {
-    grid-column: 4 / span 4;
-    grid-row: 2 / span 1;
-    width: 100%;
-    max-height: 100%;
-    height: 100%;
-
-    object-fit: cover;
-    object-position: center center;
-  }
-
-  #audio_vis {
-    grid-column: 3 / -1;
-    grid-row: 3 / span 1;
-    border-top: 1px solid $dark_pink;
-    border-left: 1px solid $dark_pink;
-
-    * {
-      height: 100%;
+  #list {
+    li {
+      border-top: 1px solid $lilac;
+      padding: 1.5rem 0;
+      display: grid;
+      grid-template-columns: 1fr max-content;
+      grid-template-rows: auto auto;
+      grid-row-gap: 1.5rem;
       width: 100%;
+
+      .track_title {
+        grid-column: 1 / 1;
+        grid-row: 1 / 1;
+        color: $lilac;
+        transition: 0.15s color linear;
+      }
+
+      .artist {
+        grid-column: 1 / 1;
+        grid-row: 2 / 2;
+        @include font_tiny;
+        color: $purple;
+        transition: 0.15s color linear;
+      }
+
+      .track_duration {
+        grid-column: 2 / 2;
+        grid-row: 1 / 1;
+        @include font_tiny;
+        color: $purple;
+        transition: 0.15s color linear;
+      }
+
+      &:hover .track_title,
+      &.active .track_title {
+        color: $light_pink;
+      }
+
+      &:hover .artist,
+      &:hover .track_duration,
+      &.active .artist,
+      &.active .track_duration {
+        color: $lilac;
+      }
     }
   }
+
   audio {
     display: none;
   }

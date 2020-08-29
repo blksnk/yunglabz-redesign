@@ -15,7 +15,7 @@ $dark_purple: #290434;
 
 @mixin font_tiny {
   font-size: 1.25rem;
-  line-height: 1rem;
+  line-height: 1.25rem;
   font-family: 'compagnie wide';
 
   @media screen and (max-width: 650px) {
@@ -35,15 +35,16 @@ $dark_purple: #290434;
 
 @mixin font_medium {
   font-size: 4vw;
-  line-height: 3.2vw;
-  font-family: 'compagnie wide';
+  line-height: 3.4vw;
+  font-family: 'druk';
+  text-transform: uppercase;
 }
 
 @mixin font_big {
   font-family: 'druk';
   text-transform: uppercase;
   font-size: 8vw;
-  line-height: 5.9vw;
+  line-height: 5.95vw;
 }
 
 @mixin font_huge {
@@ -56,17 +57,18 @@ $dark_purple: #290434;
   font-family: 'druk';
   font-size: 12vw;
   letter-spacing: 4px;
+  text-transform: uppercase;
 }
 
 @mixin block_padding {
-  padding: 3rem;
+  padding: 3rem 6rem;
   overflow: hidden;
 
   @media only screen and (max-width: 650px) {
-    padding: 1.25rem;
+    padding: 1.25rem 3rem;
   }
 
   @media only screen and (max-width: 500px) {
-    padding: 1rem;
+    padding: 1rem 3rem;
   }
 }

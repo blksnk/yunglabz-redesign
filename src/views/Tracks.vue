@@ -1,5 +1,5 @@
 <template>
-  <section id="tracks" ref="page">
+  <section id="tracks" ref="section">
     <div
       id="image_container"
       data-scroll-target="#tracks"
@@ -7,11 +7,13 @@
       data-scroll-speed=".5"
       data-scroll
     >
-      <img
-        :src="activeTrack.visuUrl"
-        :alt="activeTrack.title"
-        :key="`img${trackIndex}`"
-      />
+      <transition name="slide">
+        <img
+          :src="activeTrack.loopUrl"
+          :alt="activeTrack.title"
+          :key="`img${trackIndex}`"
+        />
+      </transition>
     </div>
 
     <div
@@ -27,7 +29,7 @@
         data-scroll-speed="7"
         data-scroll-direction="horizontal"
         data-scroll
-        data-scroll-offset="0%, -1500%"
+        data-scroll-offset="0%, -2000%"
         :class="{
           title_container: true,
           active: $store.state.trackIndex === index,
@@ -57,14 +59,27 @@
 </template>
 
 <script>
-import { wHeight } from '@/utils/layout.js';
+import { getDimensions, numToPx, wHeight } from '@/utils/layout.js';
 
 export default {
   name: 'Tracks',
   data() {
-    return {
-      animId: null,
-    };
+    return {};
+  },
+  methods: {
+    getSliderWidth() {
+      return getDimensions(this.$refs.titles).width;
+    },
+    assignSectionHeight(h) {
+      const height = numToPx(h + wHeight);
+      console.log(height);
+      this.$refs.section.style.height = height;
+      this.$refs.section.style.minHeight = height;
+    },
+    resizeSection() {
+      // this.assignSectionHeight(this.getSliderWidth());
+      this.$emit('updateLS');
+    },
   },
   watch: {
     trackIndex(next, prev) {
@@ -77,9 +92,6 @@ export default {
     },
     activeTrack() {
       return this.$store.state.tracks[this.trackIndex];
-    },
-    scrollOffset() {
-      return wHeight();
     },
     onScroll({ deltaY }) {
       let i = this.trackIndex;
@@ -101,6 +113,10 @@ export default {
       return this.$store.state.tracks.map((t, index) => index);
     },
   },
+  mounted() {
+    this.resizeSection();
+    window.addEventListener('resize', this.resizeSection);
+  },
 };
 </script>
 
@@ -113,24 +129,40 @@ export default {
   min-height: 800vw;
   height: 800vw;
   position: relative;
-  // height: max-content;
-  // background-image: linear-gradient(to bottom, $light_pink, $dark);
 
   #image_container {
     height: 100vh;
     min-height: 100vh;
     display: flex;
+    overflow: hidden;
     align-items: center;
     justify-content: center;
-    padding: 6rem 3rem;
     z-index: 1;
 
     img {
-      height: 100%;
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid $hard_purple;
+      height: 80vh;
+      width: calc(80vh / 4 * 3);
+      // padding: 0.75rem;
+      // border: 2px solid $hard_purple;
+      transform: translateY(0) scale(1, 1);
       z-index: 1;
+      transition-duration: 0.6s;
+      position: absolute;
+    }
+
+    .slide-leave-active,
+    .slide-enter-active {
+      transition-timing-function: ease-out;
+    }
+
+    .slide-leave-to,
+    .slide-enter {
+      transform: translateY(100vh);
+    }
+
+    .slide-leave-to {
+      transform: translateY(100vh) scale(0.8, 0.8);
+      // opacity: 0;
     }
   }
 
@@ -138,30 +170,32 @@ export default {
     top: calc(-100vh);
     position: relative;
     height: 100vh;
+    width: max-content;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     justify-content: flex-start;
     margin-left: 30vw;
+    pointer-events: none;
 
     .title_container {
       padding-left: 3rem;
       height: 100%;
       display: flex;
       align-items: center;
-
+      pointer-events: none;
       z-index: 2;
       justify-content: space-between;
 
       .title {
-        text-transform: uppercase;
         color: transparent;
         height: max-content;
         letter-spacing: 4px;
         position: relative;
         -webkit-text-stroke: 1px $light_pink;
         z-index: 2;
-        transition-duration: 0.15s;
+        transition-duration: 0.6s;
+        pointer-events: all;
       }
 
       &.active .title {
