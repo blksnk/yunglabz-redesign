@@ -52,18 +52,36 @@ export function extractAboutData(data) {
   return data[0];
 }
 
+export function addDbUrl(url) {
+  return process.env.VUE_APP_API_URL + url;
+}
+
 export function formatTracks(data) {
   return sortByIndex(data).map((track) => {
     return {
       ...track,
       audioUrl: addDbUrl(track.audio.url),
       loopUrl: addDbUrl(track.loop.url),
+      clipUrl: track.clip ? addDbUrl(track.clip.url) : null,
+      artistNames: track.artists.map((artist) => artist.name),
     };
   });
 }
 
-export function addDbUrl(url) {
-  return process.env.VUE_APP_API_URL + url;
+export async function preloadMetadata(url) {
+  return new Promise((resolve) => {
+    const audio = new Audio();
+    audio.addEventListener('loadedmetadata', () => {
+      resolve(formatDuration(audio.duration));
+    });
+    audio.src = url;
+  });
+}
+
+export function formatDuration(time) {
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time) - minutes * 60;
+  return { minutes, seconds, total: time };
 }
 
 export function loadImg(src, el, callback) {

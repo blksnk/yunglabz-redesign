@@ -1,19 +1,15 @@
 <template>
-  <section id="tracks" ref="section">
+  <section
+    id="tracks"
+    ref="section"
+    :style="{ height: sectionHeight, minHeight: sectionHeight }"
+  >
     <div
-      id="image_container"
       data-scroll-target="#tracks"
       data-scroll-sticky
-      data-scroll-speed=".5"
       data-scroll
     >
-      <transition name="slide">
-        <img
-          :src="activeTrack.loopUrl"
-          :alt="activeTrack.title"
-          :key="`img${trackIndex}`"
-        />
-      </transition>
+      <TrackVisual />
     </div>
 
     <div
@@ -22,20 +18,25 @@
       data-scroll-target="#tracks"
       data-scroll-sticky
       data-scroll
+      :class="{ hide: $store.state.showClip }"
     >
       <div
-        v-for="(track, index) in $store.state.tracks"
+        v-for="(track, index) in tracks"
         :key="'title' + index"
-        data-scroll-speed="7"
+        data-scroll-speed="8"
         data-scroll-direction="horizontal"
         data-scroll
-        data-scroll-offset="0%, -2000%"
+        :data-scroll-offset="`0%, -${scrollOffset}`"
         :class="{
           title_container: true,
-          active: $store.state.trackIndex === index,
+          active: $store.state.scrollIndex === index,
         }"
       >
-        <h2 class="title" :data-title="track.title">
+        <h2
+          class="title"
+          :data-title="track.title"
+          @click="() => onclickTitle(index)"
+        >
           {{ track.title }}
         </h2>
         <img
@@ -45,63 +46,40 @@
         />
       </div>
     </div>
-    <div id="triggers">
-      <div
-        data-scroll
-        :data-scroll-call="index"
-        data-scroll-repeat
-        class="trigger"
-        v-for="index in indexes"
-        :key="`trigger${index}`"
-      ></div>
-    </div>
   </section>
 </template>
 
 <script>
-import { getDimensions, numToPx, wHeight } from '@/utils/layout.js';
+import TrackVisual from '@/components/TrackVisual.vue';
+import {
+  getDimensions,
+  numToUnit,
+  wHeight,
+  wWidth,
+  rem,
+  // transform,
+} from '@/utils/layout.js';
 
 export default {
   name: 'Tracks',
+  components: {
+    // Counter,
+    TrackVisual,
+  },
   data() {
-    return {};
-  },
-  methods: {
-    getSliderWidth() {
-      return getDimensions(this.$refs.titles).width;
-    },
-    assignSectionHeight(h) {
-      const height = numToPx(h + wHeight);
-      console.log(height);
-      this.$refs.section.style.height = height;
-      this.$refs.section.style.minHeight = height;
-    },
-    resizeSection() {
-      // this.assignSectionHeight(this.getSliderWidth());
-      this.$emit('updateLS');
-    },
-  },
-  watch: {
-    trackIndex(next, prev) {
-      console.log(prev, '->', next);
-    },
+    return {
+      sectionHeight: '800vw',
+      scrollOffset: '300%',
+      cx: 720,
+      iconWidth: wWidth(9) + rem(3),
+    };
   },
   computed: {
-    trackIndex() {
-      return this.$store.state.trackIndex;
+    scrollIndex() {
+      return this.$store.state.scrollIndex;
     },
     activeTrack() {
-      return this.$store.state.tracks[this.trackIndex];
-    },
-    onScroll({ deltaY }) {
-      let i = this.trackIndex;
-      if (deltaY > 0) {
-        i += 1;
-      } else {
-        i -= 1;
-      }
-      this.$store.commit('setTrackIndex', i);
-      return i;
+      return this.$store.state.tracks[this.scrollIndex];
     },
     titleIcons() {
       return this.$store.state.tracks.slice(
@@ -109,12 +87,105 @@ export default {
         this.$store.state.tracks.length - 2,
       );
     },
+    tracks() {
+      return this.$store.state.tracks;
+    },
     indexes() {
       return this.$store.state.tracks.map((t, index) => index);
     },
+    dataLoaded() {
+      return this.$store.state.dataLoaded;
+    },
+    layout() {
+      return this.$store.state.layout.tracks;
+    },
+    scroll() {
+      return this.$store.state.layout.scroll;
+    },
   },
+  watch: {
+    scrollIndex(next, prev) {
+      console.log(prev, '->', next);
+    },
+    scroll(next, prev) {
+      this.computeActiveTrack(next.y < prev.y);
+    },
+  },
+  methods: {
+    getSliderWidth() {
+      return getDimensions(this.$refs.titles).width;
+    },
+    getTitleDims() {
+      return [...this.$refs.titles.childNodes].map((node) =>
+        getDimensions(node),
+      );
+    },
+    computeActiveTrack(reverse) {
+      // select next title index based on scroll direction
+      const nextIndex = reverse
+        ? this.scrollIndex - 1
+        : this.scrollIndex + 1;
+
+      // only execute if next title is in range
+      if (nextIndex >= 0 && nextIndex < this.indexes.length) {
+        // get selected title dimensions
+        const { x, right } = getDimensions(
+          this.$refs.titles.childNodes[nextIndex],
+        );
+
+        // select where to check based on scroll direction
+        // compensate for icon width included in title 'right' property
+        const check = reverse ? right - this.iconWidth : x + rem(3);
+        const offset = 50;
+
+        // check if zone is range of screen center, with 50px offset
+        if (
+          check <= this.cx + offset &&
+          check >= this.cx - offset
+        ) {
+          // apply scrollIndex change.
+          this.$store.commit('setScrollIndex', nextIndex);
+        }
+      }
+    },
+    calcDimensions() {
+      const titleDims = this.getTitleDims();
+      const sectionHeight = this.getSliderWidth();
+      const scrollOffset = (sectionHeight / wHeight()) * 100;
+      this.sectionHeight = numToUnit(sectionHeight);
+      this.scrollOffset = numToUnit(scrollOffset, '%');
+      this.cx = wWidth(50);
+      this.iconWidth = wWidth(9) + rem(3);
+
+      return {
+        sectionHeight,
+        scrollOffset,
+        titleDims,
+      };
+    },
+    resizeSection() {
+      const data = this.calcDimensions();
+      console.log(data);
+
+      this.$nextTick(() => {
+        this.$store.commit('updateLayoutData', {
+          name: 'tracks',
+          data,
+        });
+
+        this.$nextTick(() => {
+          this.$emit('updateLS');
+        });
+      });
+    },
+    onclickTitle(index) {
+      this.$store.commit('setTrackIndex', index);
+      this.$store.commit('setPlayStatus', true);
+    },
+  },
+
   mounted() {
-    this.resizeSection();
+    setTimeout(this.resizeSection, 500);
     window.addEventListener('resize', this.resizeSection);
   },
 };
@@ -129,42 +200,7 @@ export default {
   min-height: 800vw;
   height: 800vw;
   position: relative;
-
-  #image_container {
-    height: 100vh;
-    min-height: 100vh;
-    display: flex;
-    overflow: hidden;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
-
-    img {
-      height: 80vh;
-      width: calc(80vh / 4 * 3);
-      // padding: 0.75rem;
-      // border: 2px solid $hard_purple;
-      transform: translateY(0) scale(1, 1);
-      z-index: 1;
-      transition-duration: 0.6s;
-      position: absolute;
-    }
-
-    .slide-leave-active,
-    .slide-enter-active {
-      transition-timing-function: ease-out;
-    }
-
-    .slide-leave-to,
-    .slide-enter {
-      transform: translateY(100vh);
-    }
-
-    .slide-leave-to {
-      transform: translateY(100vh) scale(0.8, 0.8);
-      // opacity: 0;
-    }
-  }
+  background-image: linear-gradient(to bottom, $dark, $blue);
 
   #titles {
     top: calc(-100vh);
@@ -175,15 +211,21 @@ export default {
     flex-direction: row;
     align-items: flex-start;
     justify-content: flex-start;
-    margin-left: 30vw;
+    padding: 0 30vh;
     pointer-events: none;
+    transition: 0.4s opacity linear;
+    transition-delay: 0.9s;
+
+    &.hide {
+      opacity: 0;
+      transition-delay: 0s;
+    }
 
     .title_container {
       padding-left: 3rem;
       height: 100%;
       display: flex;
       align-items: center;
-      pointer-events: none;
       z-index: 2;
       justify-content: space-between;
 
@@ -192,10 +234,9 @@ export default {
         height: max-content;
         letter-spacing: 4px;
         position: relative;
-        -webkit-text-stroke: 1px $light_pink;
+        -webkit-text-stroke: 2px $light_pink;
         z-index: 2;
-        transition-duration: 0.6s;
-        pointer-events: all;
+        transition-duration: 0.4s;
       }
 
       &.active .title {
@@ -208,22 +249,10 @@ export default {
       }
     }
   }
-  #triggers {
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
 
-    .trigger {
-      // background: red;
-      width: 6px;
-      height: 55vw;
-      pointer-events: none;
-    }
+  #counter {
+    position: absolute;
+    top: calc(100vh - 4rem);
   }
 }
 </style>

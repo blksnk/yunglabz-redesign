@@ -6,7 +6,9 @@ $purple: #6a4d6dff;
 $violet: #4a2851ff;
 $hard_purple: #510ab2;
 $dark: #181818;
-$blue: #3b3a62;
+$orange: #ebd5d5;
+// $blue: #3b3a62;
+$blue: #363554;
 $dark_purple: #290434;
 
 @mixin vw_fraction($frac: 3, $width: 1) {
@@ -14,7 +16,7 @@ $dark_purple: #290434;
 }
 
 @mixin font_tiny {
-  font-size: 1.25rem;
+  font-size: 1rem;
   line-height: 1.25rem;
   font-family: 'compagnie wide';
 
@@ -55,7 +57,7 @@ $dark_purple: #290434;
 
 @mixin font_track_title {
   font-family: 'druk';
-  font-size: 12vw;
+  font-size: 12rem;
   letter-spacing: 4px;
   text-transform: uppercase;
 }
@@ -65,10 +67,10 @@ $dark_purple: #290434;
   overflow: hidden;
 
   @media only screen and (max-width: 650px) {
-    padding: 1.25rem 3rem;
+    padding: 3rem 1.25rem;
   }
 
   @media only screen and (max-width: 500px) {
-    padding: 1rem 3rem;
+    padding: 3rem 1rem;
   }
 }

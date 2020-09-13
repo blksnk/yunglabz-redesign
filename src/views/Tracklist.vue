@@ -2,18 +2,22 @@
   <section id="tracklist">
     <div id="aside">
       <span>
-        tracklist
+        yunglabz &mdash; iterations
         <br />
-        meta volume 1 &mdash; yunglabz
+        prod by sizelem
       </span>
-      <div id="line"></div>
+      <div class="line"></div>
     </div>
 
     <main>
       <div id="controls">
-        <span id="active_track_title">
-          {{ activeTrack.title }}
-        </span>
+        <div id="info">
+          <span id="play_info">current track</span>
+
+          <span id="active_track_title">
+            {{ activeTrack.title }}
+          </span>
+        </div>
 
         <Button
           id="play_btn"
@@ -22,39 +26,47 @@
           :active="isPlaying"
           @click="playPause"
         />
-        <div id="progress">
-          <div id="bar"></div>
+        <div id="progress" ref="progress">
+          <div id="bar" :style="progressBarStyle"></div>
+          <div id="thumb" :style="progressThumbStyle"></div>
         </div>
       </div>
 
-      <ul id="list">
+      <ul
+        id="list"
+        data-scroll
+        data-scroll-delay="0.2"
+        data-scroll-speed="1"
+      >
         <li
           v-for="(track, index) in tracks"
           :key="'tracktitle' + index"
-          :class="{ active: trackIndex === index && isPlaying }"
-          @click="() => setTrackIndex(index)"
+          :class="{ active: trackIndex === index }"
+          @click="() => selectTrack(index)"
         >
           <h3 class="track_title">
             {{ track.title }}
           </h3>
 
-          <span class="artist">yunglabz</span>
+          <span class="artist">{{
+            formatArtists(track.artistNames)
+          }}</span>
 
-          <span class="track_duration">3:42</span>
+          <span class="track_duration"
+            >{{ track.duration.minutes }}:{{
+              track.duration.seconds
+            }}</span
+          >
         </li>
       </ul>
     </main>
-    <audio
-      src="/aokigahara.mp3"
-      @loadedmetadata="getDuration"
-      controls
-      ref="audio"
-    ></audio>
+    <audio src="/aokigahara.mp3" controls ref="audio"></audio>
   </section>
 </template>
 
 <script>
 import Button from '@/components/Button.vue';
+import { getDimensions } from '@/utils/layout';
 
 export default {
   name: 'Tracklist',
@@ -63,32 +75,27 @@ export default {
   },
   data() {
     return {
-      audioSize: {
-        width: 0,
-        height: 0,
-      },
-      timestamp: null,
-      progress: null,
-      playDuration: null,
-      duration: null,
-      audioCtx: null,
-      analyser: null,
+      progressWidth: 0,
     };
   },
   methods: {
     setTrackIndex(index) {
       this.$store.commit('setTrackIndex', index);
     },
-    playPause() {
-      if (this.isPlaying) {
-        this.$refs.audio.pause();
-      } else {
-        this.$refs.audio.play();
+    selectTrack(index) {
+      this.setTrackIndex(index);
+      if (!this.$store.state.isPlaying) {
+        this.playPause();
       }
+    },
+    playPause() {
       this.$store.dispatch('playPause');
     },
-    getDuration() {
-      this.duration = this.$refs.audio.duration;
+    formatArtists(names) {
+      return names.join(', ');
+    },
+    assignProgressWidth() {
+      this.progressWidth = getDimensions(this.$refs.progress).width;
     },
   },
   computed: {
@@ -104,8 +111,26 @@ export default {
     isPlaying() {
       return this.$store.state.isPlaying;
     },
+    progressPercentage() {
+      const { currentTime } = this.$store.state;
+      const { total } = this.activeTrack.duration;
+      const percentage = (currentTime / total) * 100;
+      return percentage;
+    },
+    progressBarStyle() {
+      return { width: `${this.progressPercentage}%` };
+    },
+    progressThumbStyle() {
+      return {
+        transform: `translateX(${(this.progressPercentage / 100) *
+          this.progressWidth}px)`,
+      };
+    },
   },
-  mounted() {},
+  mounted() {
+    this.assignProgressWidth();
+    window.addEventListener('resize', this.assignProgressWidth);
+  },
 };
 </script>
 
@@ -118,18 +143,21 @@ export default {
   color: $light_pink;
   width: 100%;
   min-height: 100vh;
-  padding-bottom: 12rem;
+  background-image: linear-gradient(to bottom, $blue, $violet);
 
   #aside {
     min-height: calc(100vh - 6rem);
+    width: 2.5rem;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    position: sticky;
+    top: 0;
 
-    #line {
-      width: 1px;
+    .line {
+      width: 2px;
       flex-grow: 1;
-      margin-right: 0.7rem;
+      margin-right: 0.5rem;
       background-image: linear-gradient(
         to bottom,
         $lilac,
@@ -141,7 +169,7 @@ export default {
       @include font_tiny;
       color: $lilac;
       text-orientation: mixed;
-      writing-mode: vertical-lr;
+      writing-mode: vertical-rl;
       transform: rotate(180deg);
       margin-bottom: 1.5rem;
     }
@@ -155,23 +183,32 @@ export default {
     flex: 1;
 
     #controls {
-      padding: 6rem;
+      margin-top: 6rem;
+      margin-bottom: 9rem;
+      padding-right: 6rem;
       position: sticky;
       top: 0;
+      width: 100%;
 
       display: grid;
-      grid-column-gap: 1.5rem;
+      grid-column-gap: 3rem;
       grid-row-gap: 3rem;
       grid-template-columns: max-content 1fr;
       grid-template-rows: auto 3rem;
 
-      #active_track_title {
-        @include font_big;
+      #info {
         grid-column: 1 / -1;
         grid-row: 1 / 1;
 
-        .marquee_text {
-          margin-right: 3rem;
+        #play_info {
+          @include font_tiny;
+          display: block;
+          margin-bottom: 1.5rem;
+          color: $black_shadows;
+        }
+
+        #active_track_title {
+          @include font_big;
         }
       }
 
@@ -183,11 +220,40 @@ export default {
       #progress {
         grid-column: 2 / 2;
         grid-row: 2 / 2;
+        position: relative;
+        width: 100%;
+        height: 1px;
+        background-color: $lilac;
+        align-self: center;
+
+        #bar {
+          position: absolute;
+          top: -1.5px;
+          left: 0;
+          height: 3px;
+          background-color: $hard_purple;
+          width: 0%;
+          transition: 0.1s width linear;
+        }
+
+        #thumb {
+          position: absolute;
+          top: -0.5rem;
+          left: -0.5rem;
+          height: 1rem;
+          width: 1rem;
+          border-radius: 1rem;
+          transform: translateX(0);
+          background-color: $light_pink;
+          cursor: grab;
+        }
       }
     }
   }
 
   #list {
+    border-bottom: 1px solid $lilac;
+
     li {
       border-top: 1px solid $lilac;
       padding: 1.5rem 0;
@@ -196,6 +262,7 @@ export default {
       grid-template-rows: auto auto;
       grid-row-gap: 1.5rem;
       width: 100%;
+      cursor: pointer;
 
       .track_title {
         grid-column: 1 / 1;

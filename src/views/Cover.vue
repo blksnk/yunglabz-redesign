@@ -7,9 +7,9 @@
       alt=""
       id="cover_img"
     />
-    <div id="container" data-scroll data-scroll-speed="2">
-      <h1>meta vol. 1</h1>
-      <h4>Yunglabz and Friends</h4>
+    <div id="container" data-scroll data-scroll-speed="1">
+      <h1>itérations</h1>
+      <h4>yunglabz // 67K // produced by Sizelem</h4>
       <img class="globe" src="@/assets/svg/globe_cover.svg" />
     </div>
   </section>
@@ -33,6 +33,7 @@ export default {
   display: grid;
   grid-template-rows: auto max-content;
   grid-template-columns: auto;
+  background-image: linear-gradient(to bottom, $violet, $dark);
 
   #cover_img {
     height: 100%;
@@ -47,7 +48,8 @@ export default {
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-rows: 1.5rem max-content;
-    grid-row-gap: 1.5rem;
+    grid-row-gap: 1rem;
+    overflow-y: visible;
 
     h1 {
       grid-column: 1 / span 1;
@@ -57,6 +59,7 @@ export default {
     h4 {
       grid-column: 1 / span 1;
       grid-row: 1 / span 1;
+      word-break: normal;
     }
 
     .globe {

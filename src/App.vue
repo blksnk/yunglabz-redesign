@@ -1,26 +1,27 @@
 <template>
   <div id="app">
-    <main ref="main">
+    <main ref="main" v-if="$store.state.dataLoaded">
       <Cover />
-      <Spacer />
+      <Spacer id="spacer1" />
       <Tracks v-on:updateLS="updateLS" />
-      <Spacer />
+      <Spacer id="spacer2" />
       <Tracklist />
+      <AudioPlayer />
     </main>
-    <!-- <NavBar></NavBar> -->
     <img src="@/assets/img/wrap.png" id="wrap" alt="" />
   </div>
 </template>
 
 <script>
-import Locomotive from 'locomotive-scroll';
-
 import Cover from '@/views/Cover.vue';
 import Tracklist from '@/views/Tracklist.vue';
 import Tracks from '@/views/Tracks.vue';
+
 import Spacer from '@/components/Spacer.vue';
+import AudioPlayer from '@/components/AudioPlayer.vue';
+
 import { fetchAll } from '@/utils/fetchers.js';
-// import NavBar from '@/components/NavBar.vue';
+import { initLS } from '@/utils/layout.js';
 
 export default {
   components: {
@@ -28,7 +29,7 @@ export default {
     Tracklist,
     Tracks,
     Spacer,
-    // NavBar,
+    AudioPlayer,
   },
   data() {
     return {
@@ -39,18 +40,23 @@ export default {
   methods: {
     initLS() {
       console.log('init LS');
-      this.locomotive = new Locomotive({
-        el: this.$refs.main,
-        smooth: true,
-        smoothMobile: true,
-        scrollFromAnywhere: true,
-      });
+      this.locomotive = initLS(this.$refs.main);
 
-      this.locomotive.on('call', (index) => {
-        const num = Number(index);
-        if (num !== this.$store.state.trackIndex) {
-          this.setActiveTrack(num);
-        }
+      // this.locomotive.on('call', (index) => {
+      //   const num = Number(index);
+      //   if (num !== this.$store.state.scrollIndex) {
+      //     this.setActiveTrack(num);
+      //   }
+      //   if (this.$store.state.userAgreed) {
+      //     this.playSample(num);
+      //   }
+      // });
+
+      this.locomotive.on('scroll', (e) => {
+        this.$store.commit('updateLayoutData', {
+          name: 'scroll',
+          data: { y: e.scroll.y, speed: e.speed },
+        });
       });
     },
     updateLS() {
@@ -60,13 +66,16 @@ export default {
         this.initLS();
       }
     },
-    setActiveTrack(i) {
+    playSample(i) {
       this.$store.commit('setTrackIndex', i);
+      this.$store.commit('setPlayStatus', true);
+    },
+    setActiveTrack(i) {
+      this.$store.commit('setScrollIndex', i);
     },
     async fetchData() {
       const { tracks } = await fetchAll();
-      console.log(tracks);
-      // this.$store.commit('setTracks', tracks);
+      this.$store.dispatch('preloadAndSetTracks', { tracks });
     },
   },
   created() {
@@ -184,6 +193,15 @@ li {
   );
 }
 
+#spacer1 {
+  background-color: $dark;
+}
+
+#spacer2 {
+  background-color: $blue;
+}
+
+// wrap overlay
 #wrap {
   position: fixed;
   top: 0;
@@ -200,6 +218,8 @@ li {
   user-select: none;
   z-index: 40;
 }
+
+// locomotive css
 
 html.has-scroll-smooth {
   overflow: hidden;
@@ -256,4 +276,6 @@ html.has-scroll-dragging {
   cursor: -webkit-grabbing;
   cursor: grabbing;
 }
+
+//text transition
 </style>

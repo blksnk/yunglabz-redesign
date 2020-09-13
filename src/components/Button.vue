@@ -40,6 +40,7 @@ export default {
   height: 100%;
   width: 100%;
   min-width: 12rem;
+  padding: 1rem 3rem;
 
   &::after,
   span::after {
@@ -52,7 +53,7 @@ export default {
   }
 
   span {
-    color: $lilac;
+    color: $black_shadows;
     position: relative;
     transition: 0.2s color linear;
 
@@ -75,7 +76,7 @@ export default {
 
   &.active::after,
   &:hover::after {
-    transform: rotate(-15deg);
+    transform: rotate(-12deg);
   }
 
   &:hover span {

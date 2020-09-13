@@ -1,13 +1,24 @@
-// import locomotiveScroll from 'locomotive-scroll';
+import LS from 'locomotive-scroll';
 
-export const wHeight = () => window.innerHeight;
-export const wWidth = () => window.innerWidth;
-export const rem = () =>
+export const wHeight = (val = 100) =>
+  (window.innerHeight / 100) * val;
+export const wWidth = (val = 100) =>
+  (window.innerWidth / 100) * val;
+export const rem = (val = 1) =>
   parseInt(
     window
       .getComputedStyle(document.documentElement)
       .fontSize.split('px')[0],
-  );
+  ) * val;
+
+export const transform = (obj) => {
+  return Object.keys(obj)
+    .map((key) => {
+      const val = obj[key];
+      return `${key}(${val})`;
+    })
+    .join(' ');
+};
 
 export const formatParagraphs = (paragraph) =>
   paragraph.split('\n').filter((item) => item !== '');
@@ -20,19 +31,16 @@ export function getCurrentScrollY(el) {
   return Math.max(y, top);
 }
 
-// export function initLS(el, listener) {
-//   const ls = new locomotiveScroll({
-//     el,
-//     smooth: true,
-//     smoothMobile: true,
-//     inertia: 0.7,
-//     getSpeed: true,
-//   });
-//   if (listener) {
-//     ls.on('scroll', listener);
-//   }
-//   return ls;
-// }
+export function initLS(el) {
+  const ls = new LS({
+    el,
+    smooth: true,
+    smoothMobile: true,
+    inertia: 0.7,
+    getSpeed: true,
+  });
+  return ls;
+}
 
 export function getPos(el) {
   const pos = el.getBoundingClientRect();
@@ -47,6 +55,6 @@ export function getDimensions(el) {
   return el.getBoundingClientRect();
 }
 
-export function numToPx(num) {
-  return `${String(num)}px`;
+export function numToUnit(num, unit = 'px') {
+  return `${String(num)}${unit}`;
 }

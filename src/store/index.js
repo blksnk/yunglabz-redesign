@@ -1,49 +1,29 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import { preloadMetadata } from '@/utils/fetchers';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    dataLoaded: false,
     trackIndex: 0,
+    scrollIndex: 0,
     isPlaying: false,
-    tracks: [
-      {
-        title: 'Meta',
-        audioUrl: '',
-        loopUrl:
-          'https://i.pinimg.com/originals/73/55/f9/7355f972664a1a9edcd433d907845dc2.jpg',
+    currentTime: 0,
+    tracks: [],
+    userAgreed: false,
+    showClip: false,
+    layout: {
+      scroll: {
+        y: 0,
+        speed: 0,
       },
-      {
-        title: 'overdrive',
-        audioUrl: '',
-        loopUrl:
-          'https://hdwallpaperim.com/wp-content/uploads/2017/08/24/104588-glitch_art-pixel_sorting-clouds.jpg',
+      tracks: {
+        sectionHeight: '800vw',
+        scrollOffset: '300%',
       },
-      {
-        title: 'glitch',
-        audioUrl: '',
-        loopUrl: 'https://i.imgur.com/hcNjXva.jpg',
-      },
-      {
-        title: 'quartier',
-        audioUrl: '',
-        loopUrl:
-          'https://c4.wallpaperflare.com/wallpaper/837/544/905/glitch-art-sea-landscape-nature-wallpaper-preview.jpg',
-      },
-      {
-        title: 'hypothese',
-        audioUrl: '',
-        loopUrl:
-          'https://live.staticflickr.com/7911/33649754258_c57ac95bcc_b.jpg',
-      },
-      {
-        title: 'crypt',
-        audioUrl: '',
-        loopUrl:
-          'https://wallup.net/wp-content/uploads/2016/05/25/242470-glitch_art.jpg',
-      },
-    ],
+    },
   },
   mutations: {
     setTrackIndex(state, payload) {
@@ -55,10 +35,48 @@ export default new Vuex.Store({
     setTracks(state, payload) {
       state.tracks = payload;
     },
+    updateTrack(state, { updated, index }) {
+      const tracks = [...state.tracks];
+      tracks[index] = updated;
+      state.tracks = tracks;
+    },
+    setScrollIndex(state, payload) {
+      state.scrollIndex = payload;
+    },
+    setDataLoaded(state) {
+      state.dataLoaded = true;
+    },
+    setCurrentTime(state, time) {
+      state.currentTime = time;
+    },
+    updateLayoutData(state, { name, data }) {
+      state.layout[name] = { ...state.layout[name], ...data };
+    },
+    setShowClip(state, bool) {
+      state.showClip = bool;
+    },
   },
   actions: {
     playPause({ state, commit }) {
       commit('setPlayStatus', !state.isPlaying);
+    },
+    updateTrackDuration({ state, commit }, { index, duration }) {
+      const track = { ...state.tracks[index], duration };
+      commit('updateTrack', { track, index });
+    },
+    async preloadAndSetTracks({ commit }, { tracks }) {
+      const durations = await Promise.all(
+        tracks.map((track) => preloadMetadata(track.audioUrl)),
+      );
+      const formatted = tracks.map((track, index) => ({
+        ...track,
+        duration: durations[index],
+      }));
+      commit('setTracks', formatted);
+      commit('setDataLoaded');
+    },
+    toggleShowClip({ state, commit }) {
+      commit('setShowClip', !state.showClip);
     },
   },
   modules: {},
