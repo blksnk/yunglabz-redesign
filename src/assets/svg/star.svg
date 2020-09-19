@@ -1,0 +1,35 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#eddedf" stroke-width="1" style="stroke-width: 0.944231px;">
+  <style>
+    @keyframes rotate {
+      0% {
+        transform: rotate(360deg);
+      }
+      100% {
+        transform: rotate(0deg);
+      }
+    }
+
+    #star {
+      transform-origin: center center;
+      animation-name: rotate;
+      animation-duration: 6s;
+      animation-direction: forward;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+    }
+  </style>
+  <g id='star'>
+    <path d="M50.2586 1H49.7452V99H50.2586V1Z"></path>
+    <path d="M74.7236 7.69409L74.2793 7.4364L25.2803 92.3078L25.7226 92.5636L74.7236 7.69409Z"></path>
+    <path d="M62.9315 2.73648L62.4353 2.60187L37.0704 97.2635L37.5666 97.3981L62.9315 2.73648Z"></path>
+    <path d="M84.831 15.5325L84.4676 15.171L15.1708 84.4677L15.5362 84.8311L84.831 15.5325Z"></path>
+    <path d="M92.5655 25.7226L92.3097 25.2765L7.43829 74.2774L7.69598 74.7217L92.5655 25.7226Z"></path>
+    <path d="M97.3981 37.5666L97.2635 37.0705L2.60382 62.4354L2.73651 62.9296L97.3981 37.5666Z"></path>
+    <path d="M99 50.2567V49.7433H1V50.2567H99Z"></path>
+    <path d="M97.2654 62.9295L97.4 62.4334L2.73843 37.0685L2.60382 37.5646L97.2654 62.9295Z"></path>
+    <path d="M84.4695 84.8292L84.8329 84.4677L15.5343 15.171L15.1708 15.5344L84.4695 84.8292Z"></path>
+    <path d="M92.3097 74.7236L92.5655 74.2774L7.69598 25.2784L7.43829 25.7207L92.3097 74.7236Z"></path>
+    <path d="M74.2793 92.5636L74.7255 92.3059L25.7264 7.4364L25.2803 7.69217L74.2793 92.5636Z"></path>
+    <path d="M62.4373 97.3962L62.9315 97.2616L37.5666 2.60382L37.0724 2.73843L62.4373 97.3962Z"></path>
+  </g>
+</svg>

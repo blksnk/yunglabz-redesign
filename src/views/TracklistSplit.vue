@@ -147,8 +147,6 @@
     color: $light_pink;
     width: 100%;
     min-height: 100vh;
-    padding-bottom: 6rem !important;
-
     background-image: linear-gradient(to bottom, $dark_purple, $blue);
 
     #aside {

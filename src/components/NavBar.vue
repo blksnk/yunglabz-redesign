@@ -5,10 +5,10 @@
 </template>
 
 <style lang="scss">
-#nav {
-  height: 100vh;
-  width: 3rem;
-  a {
+  #nav {
+    height: 100vh;
+    width: 3rem;
+    a {
+    }
   }
-}
 </style>

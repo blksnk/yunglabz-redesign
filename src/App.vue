@@ -1,281 +1,303 @@
 <template>
   <div id="app">
     <main ref="main" v-if="$store.state.dataLoaded">
-      <Cover />
+      <CoverSplit />
       <Spacer id="spacer1" />
-      <Tracks v-on:updateLS="updateLS" />
+      <Tracks @updateLS="updateLS" @scrollTo="onScrollTo" />
       <Spacer id="spacer2" />
       <Tracklist />
       <AudioPlayer />
     </main>
+    <SideMenu @enableScroll="enableScroll" />
     <img src="@/assets/img/wrap.png" id="wrap" alt="" />
+    <Overlay />
   </div>
 </template>
 
 <script>
-import Cover from '@/views/Cover.vue';
-import Tracklist from '@/views/Tracklist.vue';
-import Tracks from '@/views/Tracks.vue';
+  import CoverSplit from '@/views/CoverSplit.vue';
+  import Tracklist from '@/views/TracklistSplit.vue';
+  import Tracks from '@/views/Tracks.vue';
 
-import Spacer from '@/components/Spacer.vue';
-import AudioPlayer from '@/components/AudioPlayer.vue';
+  import Overlay from '@/components/Overlay.vue';
+  import Spacer from '@/components/Spacer.vue';
+  import AudioPlayer from '@/components/AudioPlayer.vue';
+  import SideMenu from '@/components/SideMenu.vue';
 
-import { fetchAll } from '@/utils/fetchers.js';
-import { initLS } from '@/utils/layout.js';
+  import { fetchAll } from '@/utils/fetchers.js';
+  import { initLS } from '@/utils/layout.js';
 
-export default {
-  components: {
-    Cover,
-    Tracklist,
-    Tracks,
-    Spacer,
-    AudioPlayer,
-  },
-  data() {
-    return {
-      locomotive: null,
-      warpScale: 1,
-    };
-  },
-  methods: {
-    initLS() {
-      console.log('init LS');
-      this.locomotive = initLS(this.$refs.main);
+  export default {
+    components: {
+      CoverSplit,
+      Tracklist,
+      Tracks,
+      Spacer,
+      AudioPlayer,
+      Overlay,
+      SideMenu,
+    },
+    data() {
+      return {
+        locomotive: null,
+        warpScale: 1,
+      };
+    },
+    computed: {
+      showClip() {
+        return this.$store.state.showClip;
+      },
+      menuOpen() {
+        return this.$store.state.menuOpen;
+      },
+    },
+    watch: {
+      showClip(next) {
+        this.locomotive.scrollTo('#tracks');
+        this.enableScroll(next);
+      },
+      menuOpen(next) {
+        this.enableScroll(next);
+      },
+    },
+    methods: {
+      initLS() {
+        console.log('init LS');
+        this.locomotive = initLS(this.$refs.main);
 
-      // this.locomotive.on('call', (index) => {
-      //   const num = Number(index);
-      //   if (num !== this.$store.state.scrollIndex) {
-      //     this.setActiveTrack(num);
-      //   }
-      //   if (this.$store.state.userAgreed) {
-      //     this.playSample(num);
-      //   }
-      // });
-
-      this.locomotive.on('scroll', (e) => {
-        this.$store.commit('updateLayoutData', {
-          name: 'scroll',
-          data: { y: e.scroll.y, speed: e.speed },
+        this.locomotive.on('scroll', (e) => {
+          this.$store.commit('updateLayoutData', {
+            name: 'scroll',
+            data: { y: e.scroll.y, speed: e.speed },
+          });
         });
-      });
+      },
+      updateLS() {
+        if (this.locomotive) {
+          this.locomotive.start();
+        } else {
+          this.initLS();
+        }
+      },
+      onScrollTo(target) {
+        this.locomotive.scrollTo(target);
+      },
+      playSample(i) {
+        this.$store.commit('setTrackIndex', i);
+        this.$store.commit('setPlayStatus', true);
+      },
+      setActiveTrack(i) {
+        this.$store.commit('setScrollIndex', i);
+      },
+      async fetchData() {
+        const { tracks } = await fetchAll();
+        this.$store.dispatch('preloadAndSetTracks', { tracks });
+      },
+      enableScroll(bool) {
+        if (bool) {
+          this.locomotive.stop();
+        } else {
+          this.locomotive.start();
+        }
+      },
     },
-    updateLS() {
-      if (this.locomotive) {
-        this.locomotive.update();
-      } else {
-        this.initLS();
-      }
+    created() {
+      this.fetchData();
     },
-    playSample(i) {
-      this.$store.commit('setTrackIndex', i);
-      this.$store.commit('setPlayStatus', true);
+    beforeDestroy() {
+      window.removeEventListener('resize', this.updateLS);
     },
-    setActiveTrack(i) {
-      this.$store.commit('setScrollIndex', i);
-    },
-    async fetchData() {
-      const { tracks } = await fetchAll();
-      this.$store.dispatch('preloadAndSetTracks', { tracks });
-    },
-  },
-  created() {
-    this.fetchData();
-  },
-  beforeDestroy() {
-    window.removeEventListener('resize', this.updateLS);
-  },
-};
+  };
 </script>
 
 <style lang="scss">
-@import '@/scss/_vars.scss';
+  @import '@/scss/_vars.scss';
 
-@font-face {
-  font-family: 'maelstrom sans';
-  src: url('./assets/fonts/maelstrom-sans.otf') format('opentype');
-}
-
-@font-face {
-  font-family: 'maelstrom bold';
-  src: url('./assets/fonts/maelstrom-bold.otf') format('opentype');
-}
-
-@font-face {
-  font-family: 'compagnie wide';
-  src: url('./assets/fonts/compagnie-wide.otf') format('opentype');
-}
-
-@font-face {
-  font-family: 'druk';
-  src: url('./assets/fonts/DrukWideBold.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'accent';
-  src: url('./assets/fonts/accent.ttf') format('truetype');
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-  border: none;
-  user-select: none;
-  background: none;
-  font-weight: normal;
-
-  &:focus {
-    outline: none;
+  @font-face {
+    font-family: 'maelstrom sans';
+    src: url('./assets/fonts/maelstrom-sans.otf') format('opentype');
   }
-}
 
-body,
-html {
-  width: 100%;
-  overflow: hidden;
-}
+  @font-face {
+    font-family: 'maelstrom bold';
+    src: url('./assets/fonts/maelstrom-bold.otf') format('opentype');
+  }
 
-h1 {
-  @include font_huge;
-  color: $light_pink;
-}
+  @font-face {
+    font-family: 'compagnie wide';
+    src: url('./assets/fonts/compagnie-wide.otf') format('opentype');
+  }
 
-h2 {
-  @include font_track_title;
-  // overflow-wrap: anywhere;
-}
+  @font-face {
+    font-family: 'druk';
+    src: url('./assets/fonts/DrukWideBold.woff2') format('woff2');
+  }
 
-h3 {
-  @include font_medium;
-  text-transform: uppercase;
-  color: $purple;
-}
+  @font-face {
+    font-family: 'accent';
+    src: url('./assets/fonts/accent.ttf') format('truetype');
+  }
 
-h4 {
-  @include font_tiny;
-  color: $lilac;
-  line-height: 1.5rem;
-}
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    border: none;
+    user-select: none;
+    background: none;
+    font-weight: normal;
+    transform-origin: center center;
 
-h5 {
-  font-family: 'compagnie wide';
-  color: $dark_purple;
-  font-size: 5vw;
-  line-height: 4.2vw;
-  margin-top: 1.2vw;
-}
+    &:focus,
+    &:active {
+      outline: none;
+    }
+  }
 
-button,
-a {
-  cursor: pointer;
-}
+  body,
+  html {
+    width: 100%;
+    overflow: hidden;
+  }
 
-img {
-  object-fit: cover;
-  object-position: center center;
-}
+  h1 {
+    @include font_track_title;
 
-ul,
-li {
-  list-style-type: none;
-}
+    color: $light_pink;
+  }
 
-#app {
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  padding-bottom: 12rem;
-  background-image: linear-gradient(
-    to bottom,
-    $dark,
-    $blue,
-    $violet
-  );
-}
+  h2 {
+    @include font_track_title;
+  }
 
-#spacer1 {
-  background-color: $dark;
-}
+  h3 {
+    @include font_medium;
+    color: $purple;
+  }
 
-#spacer2 {
-  background-color: $blue;
-}
+  h4 {
+    @include font_medium;
+    color: transparent;
+    -webkit-text-stroke: 2px $purple;
 
-// wrap overlay
-#wrap {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
-  mix-blend-mode: screen;
-  opacity: 25%;
-  object-fit: cover;
-  object-position: center center;
-  pointer-events: none;
-  user-select: none;
-  z-index: 40;
-}
+    @media screen and (max-width: 700px) {
+      -webkit-text-stroke: 1px $purple;
+    }
+  }
 
-// locomotive css
+  h5 {
+    font-family: 'compagnie wide';
+    color: $dark_purple;
+    font-size: 5vw;
+    line-height: 4.2vw;
+    margin-top: 1.2vw;
+  }
 
-html.has-scroll-smooth {
-  overflow: hidden;
-}
+  button,
+  a {
+    cursor: pointer;
+  }
 
-html.has-scroll-dragging {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
+  img {
+    object-fit: cover;
+    object-position: center center;
+  }
 
-.has-scroll-smooth body {
-  overflow: hidden;
-}
+  ul,
+  li {
+    list-style-type: none;
+  }
 
-.has-scroll-smooth [data-scroll-container] {
-  min-height: 100vh;
-}
+  #app {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    z-index: -1;
+  }
 
-.c-scrollbar {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 11px;
-  height: 100vh;
-  transform-origin: center right;
-  transition: transform 0.3s, opacity 0.3s;
-  opacity: 0;
-}
-.c-scrollbar:hover {
-  transform: scaleX(1.45);
-  opacity: 1;
-}
-.c-scrollbar:hover,
-.has-scroll-scrolling .c-scrollbar,
-.has-scroll-dragging .c-scrollbar {
-  opacity: 1;
-}
+  #spacer1 {
+    background-color: $dark;
+  }
 
-.c-scrollbar_thumb {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background-color: $hard_purple;
-  opacity: 0.75;
-  width: 7px;
-  border-radius: 10px;
-  margin: 2px;
-  cursor: -webkit-grab;
-  cursor: grab;
-}
-.has-scroll-dragging .c-scrollbar_thumb {
-  cursor: -webkit-grabbing;
-  cursor: grabbing;
-}
+  #spacer2 {
+    background-color: $dark_purple;
+  }
 
-//text transition
+  // wrap overlay
+  #wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    mix-blend-mode: screen;
+    opacity: 25%;
+    object-fit: cover;
+    object-position: center center;
+    pointer-events: none;
+    user-select: none;
+    z-index: 40;
+  }
+
+  // locomotive css
+
+  html.has-scroll-smooth {
+    overflow: hidden;
+  }
+
+  html.has-scroll-dragging {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  .has-scroll-smooth body {
+    overflow: hidden;
+  }
+
+  .has-scroll-smooth [data-scroll-container] {
+    min-height: 100vh;
+  }
+
+  .c-scrollbar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 11px;
+    height: 100vh;
+    transform-origin: center right;
+    transition: transform 0.3s, opacity 0.3s;
+    opacity: 0;
+  }
+  .c-scrollbar:hover {
+    transform: scaleX(1.45);
+    opacity: 1;
+  }
+  .c-scrollbar:hover,
+  .has-scroll-scrolling .c-scrollbar,
+  .has-scroll-dragging .c-scrollbar {
+    opacity: 1;
+  }
+
+  .c-scrollbar_thumb {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: $hard_purple;
+    opacity: 0.75;
+    width: 7px;
+    border-radius: 10px;
+    margin: 2px;
+    cursor: -webkit-grab;
+    cursor: grab;
+  }
+  .has-scroll-dragging .c-scrollbar_thumb {
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
+  }
+
+  //text transition
 </style>
