@@ -69,6 +69,7 @@
 
         &:first-child {
           margin-bottom: 1.5rem;
+          padding-left: 1.5rem;
         }
       }
     }

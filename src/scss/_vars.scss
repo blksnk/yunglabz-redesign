@@ -22,19 +22,24 @@ $dark_purple: #290434;
   line-height: 1.25rem;
   font-family: 'compagnie wide';
 
-  @media screen and (max-width: 650px) {
+  @media only screen and (max-width: 650px) {
     font-size: 0.75rem;
   }
 
-  @media screen and (max-width: 500px) {
+  @media only screen and (max-width: 500px) {
     font-size: 0.5rem;
   }
 }
 
 @mixin font_small {
-  font-size: 3vw;
-  line-height: 2.4vw;
+  font-size: 2vw;
+  line-height: 1.8vw;
   font-family: 'compagnie wide';
+
+  @media only screen and (max-width: 700px) {
+    font-size: 3vw;
+    line-height: 2.4vw;
+  }
 }
 
 @mixin font_medium {
@@ -52,8 +57,13 @@ $dark_purple: #290434;
 @mixin font_big {
   font-family: 'druk';
   text-transform: uppercase;
-  font-size: 8vw;
-  line-height: 5.95vw;
+  font-size: 7vw;
+  line-height: 5.55vw;
+
+  @media screen and (max-width: 700px) {
+    font-size: 9vw;
+    line-height: 7.4vw;
+  }
 }
 
 @mixin font_huge {
@@ -87,6 +97,22 @@ $dark_purple: #290434;
 
   @media only screen and (max-width: 500px) {
     padding: 1.5rem 1rem;
+  }
+}
+
+@mixin element_margin($direction, $mul: 1) {
+  margin-#{$direction}: 1.5rem * $mul;
+
+  @media only screen and (max-width: 700px) {
+    margin-#{$direction}: 0.5rem * $mul;
+  }
+}
+
+@mixin element_padding($direction, $mul: 1) {
+  padding-#{$direction}: 1.5rem * $mul;
+
+  @media only screen and (max-width: 700px) {
+    padding-#{$direction}: 0.5rem * $mul;
   }
 }
 

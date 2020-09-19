@@ -1,14 +1,10 @@
 import LS from 'locomotive-scroll';
 
-export const wHeight = (val = 100) =>
-  (window.innerHeight / 100) * val;
-export const wWidth = (val = 100) =>
-  (window.innerWidth / 100) * val;
+export const wHeight = (val = 100) => (window.innerHeight / 100) * val;
+export const wWidth = (val = 100) => (window.innerWidth / 100) * val;
 export const rem = (val = 1) =>
   parseInt(
-    window
-      .getComputedStyle(document.documentElement)
-      .fontSize.split('px')[0],
+    window.getComputedStyle(document.documentElement).fontSize.split('px')[0],
   ) * val;
 
 export const transform = (obj) => {
@@ -23,21 +19,22 @@ export const transform = (obj) => {
 export const formatParagraphs = (paragraph) =>
   paragraph.split('\n').filter((item) => item !== '');
 
-export const replaceEmDash = (string) =>
-  string.split('&mdash;').join('\u2014');
+export const replaceEmDash = (string) => string.split('&mdash;').join('\u2014');
 
 export function getCurrentScrollY(el) {
   const { y, top } = el.getBoundingClientRect();
   return Math.max(y, top);
 }
 
-export function initLS(el) {
+export function initLS(el, options = {}) {
   const ls = new LS({
     el,
     smooth: true,
     smoothMobile: true,
-    inertia: 0.7,
+    lerp: 0.075,
+    touchMultiplier: 2,
     getSpeed: true,
+    ...options,
   });
   return ls;
 }

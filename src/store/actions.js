@@ -22,6 +22,9 @@ const actions = {
   toggleShowClip({ state, commit }) {
     commit('setShowClip', !state.showClip);
   },
+  toggleMenuOpen({ state, commit }) {
+    commit('setMenuOpen', !state.menuOpen);
+  },
 };
 
 export default actions;

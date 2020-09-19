@@ -3,12 +3,12 @@
     <main ref="main" v-if="$store.state.dataLoaded">
       <CoverSplit />
       <Spacer id="spacer1" />
-      <Tracks @updateLS="updateLS" @scrollTo="onScrollTo" />
+      <Tracks @updateLS="updateLS" @scrollTo="scrollTo" />
       <Spacer id="spacer2" />
       <Tracklist />
       <AudioPlayer />
     </main>
-    <SideMenu @enableScroll="enableScroll" />
+    <SideMenu @enableScroll="enableScroll" @scrollTo="scrollTo" />
     <img src="@/assets/img/wrap.png" id="wrap" alt="" />
     <Overlay />
   </div>
@@ -53,7 +53,7 @@
     },
     watch: {
       showClip(next) {
-        this.locomotive.scrollTo('#tracks');
+        this.scrollTo('#tracks');
         this.enableScroll(next);
       },
       menuOpen(next) {
@@ -79,7 +79,7 @@
           this.initLS();
         }
       },
-      onScrollTo(target) {
+      scrollTo(target) {
         this.locomotive.scrollTo(target);
       },
       playSample(i) {
@@ -171,12 +171,12 @@
   }
 
   h3 {
-    @include font_medium;
-    color: $purple;
+    @include font_big;
+    color: $dark_purple;
   }
 
   h4 {
-    @include font_medium;
+    @include font_big;
     color: transparent;
     -webkit-text-stroke: 2px $purple;
 
@@ -191,6 +191,10 @@
     font-size: 5vw;
     line-height: 4.2vw;
     margin-top: 1.2vw;
+  }
+
+  p {
+    @include font_small;
   }
 
   button,
@@ -213,6 +217,10 @@
     height: 100vh;
     overflow: hidden;
     z-index: -1;
+
+    main {
+      overflow: hidden;
+    }
   }
 
   #spacer1 {
