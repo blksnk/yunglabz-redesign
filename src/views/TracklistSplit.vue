@@ -1,6 +1,11 @@
 <template>
   <section id="tracklist" ref="page">
-    <div id="aside">
+    <div
+      id="aside"
+      data-scroll
+      data-scroll-sticky
+      data-scroll-target="#tracklist"
+    >
       <span>
         yunglabz &mdash; iterations
         <br />
@@ -10,7 +15,7 @@
     </div>
 
     <main>
-      <div id="controls">
+      <!-- <div id="controls">
         <div id="info">
           <span id="play_info">current track</span>
 
@@ -30,16 +35,20 @@
           <div id="bar" :style="progressBarStyle"></div>
           <div id="thumb" :style="progressThumbStyle"></div>
         </div>
-      </div>
+      </div> -->
 
-      <ul id="list" data-scroll data-scroll-delay="0.2" data-scroll-speed="1">
+      <div id="section_title">tracklist</div>
+
+      <ul id="list">
         <li
           v-for="(track, index) in tracks"
           :key="'tracktitle' + index"
-          :class="{ active: trackIndex === index }"
+          :class="{
+            active: trackIndex === index,
+          }"
           @click="() => selectTrack(index)"
         >
-          <h3 class="track_title">
+          <h3 :class="{ track_title: true, glitch: trackIndex === index }">
             {{ track.title }}
           </h3>
 
@@ -56,14 +65,11 @@
 </template>
 
 <script>
-  import Button from '@/components/Button.vue';
   import { getDimensions } from '@/utils/layout';
 
   export default {
     name: 'Tracklist',
-    components: {
-      Button,
-    },
+    components: {},
     data() {
       return {
         progressWidth: 0,
@@ -128,10 +134,10 @@
       },
     },
     mounted() {
-      this.assignProgressWidth();
+      // this.assignProgressWidth();
       this.commitSectionHeight();
       window.addEventListener('resize', () => {
-        this.assignProgressWidth();
+        // this.assignProgressWidth();
         this.commitSectionHeight();
       });
     },
@@ -140,22 +146,24 @@
 
 <style lang="scss">
   @import '@/scss/_vars.scss';
+  @import '@/scss/_effects.scss';
 
   #tracklist {
     @include block_padding;
+    padding-bottom: 12rem;
     display: flex;
     color: $light_pink;
     width: 100%;
     min-height: 100vh;
+    position: relative;
     background-image: linear-gradient(to bottom, $dark_purple, $blue);
 
     #aside {
-      min-height: calc(100vh - 6rem);
+      height: calc(100vh - 12rem);
       width: 2.5rem;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      position: sticky;
       top: 0;
 
       .line {
@@ -181,6 +189,12 @@
       padding-right: 0;
       padding-bottom: 0;
       flex: 1;
+
+      #section_title {
+        @include font_tiny;
+        @include element_margin(bottom, 1);
+        color: $lilac;
+      }
 
       #controls {
         margin-top: 6rem;

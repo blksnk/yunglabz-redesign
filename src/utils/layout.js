@@ -10,7 +10,10 @@ export const rem = (val = 1) =>
 export const transform = (obj) => {
   return Object.keys(obj)
     .map((key) => {
-      const val = obj[key];
+      let val = obj[key];
+      if (Array.isArray(val)) {
+        val = val.join(', ');
+      }
       return `${key}(${val})`;
     })
     .join(' ');
@@ -33,6 +36,7 @@ export function initLS(el, options = {}) {
     smoothMobile: true,
     lerp: 0.075,
     touchMultiplier: 2,
+    mutliplier: 2,
     getSpeed: true,
     ...options,
   });

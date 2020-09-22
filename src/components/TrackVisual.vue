@@ -6,7 +6,6 @@
           <img
             :src="activeTrack.loopUrl"
             :alt="activeTrack.title"
-            :style="dim.loop"
             id="loop"
             :class="{ reverse: reverse, hide: showClip }"
             :key="`img${scrollIndex}`"
@@ -89,15 +88,13 @@
         this.reverse = next < prev;
       },
       showClip() {
-        this.assignProps();
+        // this.assignProps();
       },
     },
     methods: {
       calcDimesions() {
         const W = wWidth();
         const H = wHeight();
-        // const cx = W / 2;
-        // const cy = H / 2;
 
         // const padded = H - rem(6);
         const short = W < H ? W - rem(2) : H - rem(12);
@@ -124,8 +121,8 @@
       },
     },
     mounted() {
-      this.assignProps();
-      window.addEventListener('resize', this.assignProps);
+      // this.assignProps();
+      // window.addEventListener('resize', this.assignProps);
     },
   };
 </script>
@@ -154,8 +151,8 @@
 
       #loop {
         // border-radius: 100%;
-        height: calc(100vh - 8rem);
-        width: calc(100vh - 8rem);
+        height: 100vh;
+        width: 100vw;
         transition-timing-function: ease-in-out;
         position: absolute;
         opacity: 1;

@@ -10,7 +10,7 @@
         <stop offset="100%" stop-color="#510ab2" />
       </radialGradient>
     </defs>
-    <circle
+    <!--  <circle
       id="circle"
       cx="50%"
       cy="50%"
@@ -19,14 +19,23 @@
       fill="url(#gradient)"
       stroke="#510ab2"
       stroke-width="2px"
-    />
+    /> -->
     <line
       id="line"
       x1="-75%"
       x2="175%"
       y1="50%"
       y2="50%"
-      :style="dim.line.style"
+      :style="dim.line"
+      stroke="#eddedf"
+      stroke-width="2px"
+    />
+    <rect
+      :x="dim.rect.x"
+      :y="dim.rect.y"
+      :width="dim.rect.width"
+      :height="dim.rect.height"
+      fill="transparent"
       stroke="#eddedf"
       stroke-width="2px"
     />
@@ -54,6 +63,12 @@
             transform: transform({
               scaleY: 0,
             }),
+          },
+          rect: {
+            x: rem(3),
+            y: rem(3),
+            width: wWidth() - rem(6),
+            height: wHeight() - rem(6),
           },
         },
         reverse: false,
@@ -95,21 +110,22 @@
           ? (W / 2 - rem(6)) / r
           : 1;
         const lineRotation = numToUnit(
-          this.menuOpen || this.reachTrackList || this.showClip ? 90 : 45,
+          this.menuOpen || this.reachTrackList || this.showClip ? 0 : 45,
           'deg',
         );
-        const lineScale = this.menuOpen ? W / 2 : 1;
-        // const lineTranslateY = this.reachTrackList ? -W / 2 + rem(24) : 0;
+        const lineScaleY = this.menuOpen ? W / 2 : 1;
+        const lineTranslateY =
+          !this.menuOpen && this.reachTrackList ? H / 2 - rem(12) : 0;
         const borderWidth = 2 * (1 / (circleScale * 2));
         const loopSize = padded - rem(9);
 
         return {
           line: {
-            style: `transform: ${transform({
+            transform: transform({
               rotate: lineRotation,
-              scaleY: lineScale,
-              translateY: numToUnit(0),
-            })}`,
+              translate: [0, numToUnit(lineTranslateY)],
+              scale: [1, lineScaleY],
+            }),
           },
           circle: {
             r,

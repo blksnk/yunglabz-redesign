@@ -23,7 +23,7 @@
       </div>
 
       <div id="menu_links" class="menu_item">
-        <span>liens</span>
+        <span>sections</span>
         <ul>
           <li><button @click="scrollTo('cover')">home</button></li>
           <li><button @click="scrollTo('tracks')">visuals</button></li>
@@ -200,7 +200,8 @@
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
-      align-items: start;
+      align-items: flex-start;
+      align-content: flex-start;
       justify-content: space-between;
       gap: 0;
 
@@ -224,6 +225,10 @@
           color: $lilac;
         }
 
+        p {
+          color: $violet;
+        }
+
         ul {
           display: flex;
           flex-direction: column;
@@ -238,6 +243,7 @@
 
         #menu_marquee_container {
           height: max-content;
+          @include element_margin(bottom, -1);
 
           div {
             height: 7.3vw !important;

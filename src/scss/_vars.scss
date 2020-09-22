@@ -8,7 +8,6 @@ $violet: #4a2851ff;
 $hard_purple: #510ab2;
 $dark: #181818;
 $orange: #f4d1b1;
-// $blue: #3b3a62;
 $blue: #363554;
 $hard_blue: #0a00cc;
 $dark_purple: #290434;
@@ -37,8 +36,8 @@ $dark_purple: #290434;
   font-family: 'compagnie wide';
 
   @media only screen and (max-width: 700px) {
-    font-size: 3vw;
-    line-height: 2.4vw;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
   }
 }
 

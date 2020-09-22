@@ -162,7 +162,6 @@
 
   h1 {
     @include font_track_title;
-
     color: $light_pink;
   }
 
@@ -217,6 +216,7 @@
     height: 100vh;
     overflow: hidden;
     z-index: -1;
+    background-color: $blue;
 
     main {
       overflow: hidden;

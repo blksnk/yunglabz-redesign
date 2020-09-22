@@ -119,9 +119,11 @@
         return getDimensions(this.$refs.titles).width;
       },
       getTitleDims() {
-        return [...this.$refs.titles.childNodes].map((node) =>
-          getDimensions(node),
-        );
+        console.dir(this.$refs.titles);
+        const titles = this.$refs.titles.children;
+        return Array.from(titles).map((node) => {
+          return getDimensions(node);
+        });
       },
       computeActiveTrack(reverse) {
         // select next title index based on scroll direction
@@ -208,7 +210,7 @@
       flex-direction: row;
       align-items: flex-start;
       justify-content: flex-start;
-      padding: 0 50vw;
+      padding: 0 100vh;
       pointer-events: none;
       transition-delay: 1.2s;
       transition: 0.4s opacity linear;
@@ -221,9 +223,10 @@
 
       .title_container {
         padding-left: 3rem;
+        padding-bottom: 4rem;
         height: 100%;
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         z-index: 2;
         justify-content: space-between;
 
