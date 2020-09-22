@@ -150,7 +150,7 @@
       },
       calcDimensions() {
         const titleDims = this.getTitleDims();
-        const sectionHeight = this.getSliderWidth();
+        const sectionHeight = this.getSliderWidth() + wHeight();
         const scrollOffset = (sectionHeight / wHeight()) * 100;
         this.sectionHeight = numToUnit(sectionHeight);
         this.scrollOffset = numToUnit(scrollOffset + wHeight(), '%');
@@ -199,7 +199,7 @@
     min-height: 800vw;
     height: 800vw;
     position: relative;
-    background-image: linear-gradient(to bottom, $dark, $dark_purple);
+    background-color: $dark;
 
     #titles {
       top: calc(-100vh);
@@ -208,7 +208,7 @@
       width: max-content;
       display: flex;
       flex-direction: row;
-      align-items: flex-start;
+      align-items: flex-end;
       justify-content: flex-start;
       padding: 0 100vh;
       pointer-events: none;
@@ -224,9 +224,8 @@
       .title_container {
         padding-left: 3rem;
         padding-bottom: 4rem;
-        height: 100%;
         display: flex;
-        align-items: flex-end;
+        align-items: center;
         z-index: 2;
         justify-content: space-between;
 

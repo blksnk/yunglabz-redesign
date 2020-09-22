@@ -1,61 +1,117 @@
 <template>
-  <svg
-    id="overlay"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <defs>
-      <radialGradient id="gradient">
-        <stop offset="90%" stop-color="transparent" />
-        <stop offset="100%" stop-color="#510ab2" />
-      </radialGradient>
-    </defs>
-    <!--  <circle
-      id="circle"
-      cx="50%"
-      cy="50%"
-      :r="dim.circle.r"
-      :style="dim.circle.style"
-      fill="url(#gradient)"
-      stroke="#510ab2"
-      stroke-width="2px"
-    /> -->
-    <line
-      id="line"
-      x1="-75%"
-      x2="175%"
-      y1="50%"
-      y2="50%"
-      :style="dim.line"
-      stroke="#eddedf"
-      stroke-width="2px"
-    />
-    <rect
-      :x="dim.rect.x"
-      :y="dim.rect.y"
-      :width="dim.rect.width"
-      :height="dim.rect.height"
-      fill="transparent"
-      stroke="#eddedf"
-      stroke-width="2px"
-    />
-  </svg>
+  <div id="overlay">
+    <svg
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <linearGradient id="gradient">
+          <stop :offset="`${progress}%`" stop-color="#510ab2" />
+          <stop offset="100%" stop-color="#eddedf" />
+        </linearGradient>
+      </defs>
+      <line
+        id="line"
+        x1="0"
+        x2="100%"
+        y1="0"
+        y2="100%"
+        :style="dim.line.style"
+        stroke="#eddedf"
+        stroke-width="2px"
+      />
+      <rect
+        id="overlay_border"
+        x="0"
+        y="0"
+        width="100%"
+        height="100%"
+        fill="transparent"
+        stroke="#eddedf"
+        stroke-width="2px"
+      />
+      <rect
+        id="overlay_menu_btn_border"
+        :x="dim.rectMenu.x"
+        :y="dim.rectMenu.y"
+        :width="dim.rectMenu.width"
+        :height="dim.rectMenu.height"
+        fill="transparent"
+        stroke="#eddedf"
+        stroke-width="2px"
+      />
+      <rect
+        id="overlay_track_border"
+        :class="{ hide: !reachTracks || menuOpen }"
+        :x="dim.rectTrack.x"
+        :y="dim.rectTrack.y"
+        :width="dim.rectTrack.width"
+        :height="dim.rectTrack.height"
+        fill="transparent"
+        stroke="#eddedf"
+        stroke-width="2px"
+      />
+
+      <rect
+        id="overlay_play_border"
+        :class="{ hide: !reachTrackList || menuOpen }"
+        :x="dim.rectPlay.x"
+        :y="dim.rectPlay.y"
+        :width="dim.rectPlay.width"
+        :height="dim.rectPlay.height"
+        fill="transparent"
+        stroke="#eddedf"
+        stroke-width="2px"
+      />
+    </svg>
+    <RoundButton
+      id="clip_btn"
+      :hide="hide || !reachTracks || menuOpen"
+      title="watch video"
+      @click="toggleShowClip"
+    >
+      <span v-if="!showClip"
+        >watch<br />
+        video</span
+      >
+      <span v-else>close</span>
+    </RoundButton>
+
+    <button id="menu_btn" :class="{ active: menuOpen }" @click="toggleMenu">
+      <div class="line"></div>
+      <div class="line"></div>
+    </button>
+  </div>
 </template>
 
 <script>
+  import RoundButton from '@/components/RoundButton.vue';
   import {
     rem,
-    numToUnit,
+    // numToUnit,
     wWidth,
     wHeight,
     transform,
   } from '@/utils/layout.js';
 
+  const innerRectDim = () => {
+    const W = wWidth();
+    return {
+      x: W - rem(W < 500 ? 8 : W < 650 ? 13 : 18),
+      width: rem(W < 500 ? 6 : W < 650 ? 9 : 12),
+    };
+  };
+
   export default {
+    components: {
+      RoundButton,
+    },
     data() {
       return {
         dim: {
-          line: {},
+          line: {
+            width: wWidth(),
+          },
           circle: {
             r: '50vh',
           },
@@ -64,15 +120,26 @@
               scaleY: 0,
             }),
           },
-          rect: {
-            x: rem(3),
-            y: rem(3),
-            width: wWidth() - rem(6),
-            height: wHeight() - rem(6),
+          rectTrack: {
+            ...innerRectDim(),
+            height: wHeight() - rem(21),
+          },
+          rectMenu: {
+            ...innerRectDim(),
+            y: 0,
+            height: rem(6),
+          },
+          rectPlay: {
+            x: 0,
+            y: wHeight() - rem(18),
+            height: rem(15),
+            width: '100%',
           },
         },
         reverse: false,
+        reachTracks: false,
         reachTrackList: false,
+        progress: 0,
       };
     },
     computed: {
@@ -81,6 +148,9 @@
       },
       showClip() {
         return this.$store.state.showClip;
+      },
+      hide() {
+        return this.$store.state.tracks[this.scrollIndex].clipUrl === null;
       },
       layout() {
         return this.$store.state.layout;
@@ -101,52 +171,43 @@
         const W = wWidth();
         const H = wHeight();
 
-        const padding = rem(W < 700 ? 1.25 : 6);
-        const padded = W > H ? H - padding : W - padding;
-        const r = padded / 2;
-        const circleScale = this.reachTrackList
+        const lineScale = this.showClip
           ? 0
-          : this.showClip
-          ? (W / 2 - rem(6)) / r
+          : this.menuOpen
+          ? W > H
+            ? W
+            : H
           : 1;
-        const lineRotation = numToUnit(
-          this.menuOpen || this.reachTrackList || this.showClip ? 0 : 45,
-          'deg',
-        );
-        const lineScaleY = this.menuOpen ? W / 2 : 1;
-        const lineTranslateY =
-          !this.menuOpen && this.reachTrackList ? H / 2 - rem(12) : 0;
-        const borderWidth = 2 * (1 / (circleScale * 2));
-        const loopSize = padded - rem(9);
 
         return {
           line: {
-            transform: transform({
-              rotate: lineRotation,
-              translate: [0, numToUnit(lineTranslateY)],
-              scale: [1, lineScaleY],
-            }),
+            style: {
+              transform: transform({
+                // translate: [0, numToUnit(lineTranslateY)],
+                scale: lineScale,
+              }),
+            },
           },
-          circle: {
-            r,
-            style: `transform: ${transform({
-              scaleX: circleScale,
-              scaleY: circleScale,
-            })}; borderWidth: ${borderWidth}`,
+          rectTrack: {
+            ...innerRectDim(),
+            y: rem(6),
+            height: H - rem(W < 500 ? 19 : W < 650 ? 20 : 27),
           },
-          loop: {
-            width: numToUnit(loopSize),
-            height: numToUnit(loopSize),
-          },
-          video: {
-            transform: transform({
-              scaleY: this.showClip ? 1 : 0,
-            }),
+          rectMenu: {
+            ...innerRectDim(),
+            y: 0,
+            height: rem(6),
           },
         };
       },
       assignProps() {
         this.dim = { ...this.dim, ...this.calcDimesions() };
+      },
+      toggleShowClip() {
+        this.$store.dispatch('toggleShowClip');
+      },
+      toggleMenu() {
+        this.$store.dispatch('toggleMenuOpen');
       },
     },
     watch: {
@@ -154,11 +215,19 @@
         this.assignProps();
       },
       scrollY(val) {
+        const H = wHeight();
+
+        this.progress = Math.min(
+          Math.max(((val - H / 2) / this.layout.tracks.sectionHeight) * 100, 0),
+          100,
+        );
+
         // reach tracklist section
         this.reachTrackList =
-          val >
-          this.documentHeight - wHeight() / 2 - this.layout.list.sectionHeight;
+          val > this.documentHeight - H / 2 - this.layout.list.sectionHeight;
 
+        //reach tracks section
+        this.reachTracks = val > H && !this.reachTrackList;
         this.assignProps();
       },
       menuOpen() {
@@ -173,29 +242,145 @@
 </script>
 
 <style lang="scss">
+  @import '@/scss/_vars.scss';
+
   #overlay {
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
     width: 100%;
+    @include block_padding;
+    display: grid;
+    grid-template-columns: 12rem 1fr 12rem;
+    grid-template-rows: 6rem 1fr 15rem;
 
     pointer-events: none;
 
-    * {
-      transform-origin: center;
+    @media only screen and (max-width: 650px) {
+      grid-template-columns: 9rem 1fr 9rem;
+      grid-template-rows: 6rem 1fr 10rem;
     }
 
-    #circle {
-      transition-delay: 0.2s !important;
-      transition: 0.6s transform ease-in-out;
-      transform: scaleX(1) scaleY(1);
-      z-index: inherit;
+    @media only screen and (max-width: 500px) {
+      grid-template-columns: 6rem 1fr 6rem;
+      grid-template-rows: 6rem 1fr 11rem;
     }
 
-    #line {
-      // transition-delay: 0.5s !important;
-      transition: 0.6s transform ease-in-out;
+    svg {
+      z-index: 40;
+      height: 100%;
+      width: 100%;
+      max-width: 100%;
+      grid-column: 1 / -1;
+      grid-row: 1 / -1;
+
+      * {
+        transform-origin: center;
+      }
+
+      #overlay_track_border {
+        transform: translateX(0);
+        transition: 0.3s transform ease-in-out;
+
+        &.hide {
+          transform: translateX(12rem) !important;
+        }
+      }
+
+      #overlay_play_border {
+        transform: translateY(0);
+        transition: 0.3s transform ease-in-out;
+
+        &.hide {
+          transform: translateY(15rem) !important;
+        }
+      }
+
+      #circle {
+        transition-delay: 0.2s !important;
+        transition: 0.6s transform ease-in-out;
+        transform: scaleX(1) scaleY(1);
+        z-index: inherit;
+      }
+
+      #line {
+        // transition-delay: 0.5s !important;
+        transition: 0.6s transform ease-in-out;
+      }
+    }
+
+    #clip_btn {
+      grid-column: 3 / -1;
+      grid-row: 2 / 2;
+      pointer-events: all;
+      align-self: end;
+    }
+
+    #menu_btn {
+      grid-column: 3 / 3;
+      grid-row: 1 / 1;
+      pointer-events: all;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+      z-index: 5000;
+      align-self: center;
+      justify-self: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:before {
+        content: '';
+        position: absolute;
+        top: -6rem;
+        left: 0;
+        height: 12rem;
+        width: 12rem;
+        border-radius: 12rem;
+        background-color: $light_pink;
+        transform: scale(0, 0);
+        transition: 0.2s transform ease-in;
+      }
+
+      &:hover:before,
+      &.active:before {
+        transform: scale(1, 1);
+      }
+
+      &:hover .line,
+      &.active .line {
+        background-color: $hard_purple;
+      }
+
+      .line {
+        height: 2px;
+        width: 3rem;
+        background-color: $light_pink;
+        position: absolute;
+        transition: 0.4s transform ease-in-out 0s,
+          0.2s background-color linear 0s;
+
+        &:first-child {
+          transform: translateY(-0.5rem);
+        }
+
+        &:last-child {
+          transform: translateY(0.5rem);
+        }
+      }
+
+      &.active {
+        .line:first-child {
+          transform: translateY(0rem) rotate(45deg);
+        }
+
+        .line:last-child {
+          transform: translateY(0rem) rotate(135deg);
+        }
+      }
     }
   }
 </style>

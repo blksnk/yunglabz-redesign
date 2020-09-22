@@ -7,7 +7,7 @@
             :src="activeTrack.loopUrl"
             :alt="activeTrack.title"
             id="loop"
-            :class="{ reverse: reverse, hide: showClip }"
+            :class="{ reverse: reverse }"
             :key="`img${scrollIndex}`"
           />
         </transition>
@@ -26,36 +26,13 @@
         </div>
       </div>
     </div>
-    <RoundButton
-      id="clip_btn"
-      :hide="activeTrack.clipUrl === null"
-      :active="showClip"
-      title="watch video"
-      @click="onClick"
-    >
-      <span v-if="!showClip"
-        >watch<br />
-        video</span
-      >
-      <span v-else>close</span>
-    </RoundButton>
   </div>
 </template>
 
 <script>
-  import RoundButton from '@/components/RoundButton.vue';
-  import {
-    rem,
-    numToUnit,
-    wWidth,
-    wHeight,
-    transform,
-  } from '@/utils/layout.js';
+  import { transform } from '@/utils/layout.js';
 
   export default {
-    components: {
-      RoundButton,
-    },
     data() {
       return {
         dim: {
@@ -88,27 +65,15 @@
         this.reverse = next < prev;
       },
       showClip() {
-        // this.assignProps();
+        this.assignProps();
       },
     },
     methods: {
       calcDimesions() {
-        const W = wWidth();
-        const H = wHeight();
-
-        // const padded = H - rem(6);
-        const short = W < H ? W - rem(2) : H - rem(12);
-        const long = (short / 3) * 4;
-        // const loopSize = padded - rem(9);
-
         return {
-          loop: {
-            width: numToUnit(W > 800 ? long : short),
-            height: numToUnit(W < 800 ? long : short),
-          },
           video: {
             transform: transform({
-              scaleX: this.showClip ? 1 : 0,
+              scale: this.showClip ? 1 : 0,
             }),
           },
         };
@@ -153,11 +118,8 @@
         // border-radius: 100%;
         height: 100vh;
         width: 100vw;
-        transition-timing-function: ease-in-out;
         position: absolute;
         opacity: 1;
-        transition-duration: 0.6s;
-        transition-delay: 0.6s;
         outline: 2px solid $dark;
         outline-offset: -2px;
 
@@ -168,44 +130,17 @@
         }
       }
 
-      .change-enter-active {
-        transition-duration: 0.4s !important;
-        transition-delay: 0.2s !important;
-        transition-timing-function: ease-out;
-      }
-
-      .change-leave-active {
-        transition-duration: 1s !important;
-        transition-delay: 0s !important;
-        filter: grayscale(0.5) brightness(0.5);
-        transform: scale(0.7, 0.7) !important;
-        transition-timing-function: ease-in;
-      }
-
-      .change-leave-to {
-        opacity: 0;
-      }
-
-      .change-enter {
-        transform: translateX(100vw);
-      }
-
-      .reverse.change-enter {
-        transform: translateX(-100vw);
-      }
-
       #video_container {
         position: absolute;
-        top: 6rem;
-        left: 3rem;
-        padding: 1.5rem 3rem;
-        height: calc(100vh - 12rem);
-        width: calc(100vw - 6rem);
+        top: 0;
+        left: 0;
+        @include block_padding;
+        height: 100%;
+        width: 100%;
         z-index: 4;
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: $lilac;
         transition: 0.4s transform ease-out;
 
         &.show {
@@ -216,7 +151,7 @@
         video {
           height: 100%;
           width: 100%;
-          object-fit: contain;
+          object-fit: cover;
           opacity: 1;
           transition: 0.4s opacity;
         }

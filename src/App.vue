@@ -10,7 +10,7 @@
     </main>
     <SideMenu @enableScroll="enableScroll" @scrollTo="scrollTo" />
     <img src="@/assets/img/wrap.png" id="wrap" alt="" />
-    <Overlay />
+    <Overlay v-if="$store.state.dataLoaded" />
   </div>
 </template>
 
@@ -157,6 +157,7 @@
   body,
   html {
     width: 100%;
+    height: 100%;
     overflow: hidden;
   }
 
@@ -172,6 +173,7 @@
   h3 {
     @include font_big;
     color: $dark_purple;
+    margin-top: -0.2vw;
   }
 
   h4 {
@@ -179,7 +181,7 @@
     color: transparent;
     -webkit-text-stroke: 2px $purple;
 
-    @media screen and (max-width: 700px) {
+    @media screen and (max-width: 650px) {
       -webkit-text-stroke: 1px $purple;
     }
   }
@@ -213,7 +215,7 @@
 
   #app {
     width: 100%;
-    height: 100vh;
+    height: 100%;
     overflow: hidden;
     z-index: -1;
     background-color: $blue;

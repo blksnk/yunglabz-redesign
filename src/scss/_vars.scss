@@ -35,7 +35,7 @@ $dark_purple: #290434;
   line-height: 1.8vw;
   font-family: 'compagnie wide';
 
-  @media only screen and (max-width: 700px) {
+  @media only screen and (max-width: 650px) {
     font-size: 1.5rem;
     line-height: 1.5rem;
   }
@@ -48,7 +48,7 @@ $dark_purple: #290434;
   font-family: 'druk';
   text-transform: uppercase;
 
-  @media screen and (max-width: 700px) {
+  @media screen and (max-width: 650px) {
     font-size: 5.5vw;
   }
 }
@@ -59,7 +59,7 @@ $dark_purple: #290434;
   font-size: 7vw;
   line-height: 5.55vw;
 
-  @media screen and (max-width: 700px) {
+  @media screen and (max-width: 650px) {
     font-size: 9vw;
     line-height: 7.4vw;
   }
@@ -87,22 +87,22 @@ $dark_purple: #290434;
 }
 
 @mixin block_padding {
-  padding: 3rem 6rem;
+  padding: 3rem;
   overflow: hidden;
 
   @media only screen and (max-width: 650px) {
-    padding: 2rem 1.25rem;
+    padding: 2rem;
   }
 
   @media only screen and (max-width: 500px) {
-    padding: 1.5rem 1rem;
+    padding: 1rem;
   }
 }
 
 @mixin element_margin($direction, $mul: 1) {
   margin-#{$direction}: 1.5rem * $mul;
 
-  @media only screen and (max-width: 700px) {
+  @media only screen and (max-width: 650px) {
     margin-#{$direction}: 0.5rem * $mul;
   }
 }
@@ -110,7 +110,7 @@ $dark_purple: #290434;
 @mixin element_padding($direction, $mul: 1) {
   padding-#{$direction}: 1.5rem * $mul;
 
-  @media only screen and (max-width: 700px) {
+  @media only screen and (max-width: 650px) {
     padding-#{$direction}: 0.5rem * $mul;
   }
 }
