@@ -18,17 +18,7 @@
         y2="100%"
         :style="dim.line.style"
         stroke="#eddedf"
-        stroke-width="2px"
-      />
-      <rect
-        id="overlay_border"
-        x="0"
-        y="0"
-        width="100%"
-        height="100%"
-        fill="transparent"
-        stroke="#eddedf"
-        stroke-width="2px"
+        stroke-width="1.5px"
       />
       <rect
         id="overlay_menu_btn_border"
@@ -37,8 +27,8 @@
         :width="dim.rectMenu.width"
         :height="dim.rectMenu.height"
         fill="transparent"
-        stroke="#eddedf"
-        stroke-width="2px"
+        :stroke="strokeColor"
+        stroke-width="1.5px"
       />
       <rect
         id="overlay_track_border"
@@ -48,10 +38,9 @@
         :width="dim.rectTrack.width"
         :height="dim.rectTrack.height"
         fill="transparent"
-        stroke="#eddedf"
-        stroke-width="2px"
+        :stroke="strokeColor"
+        stroke-width="1.5px"
       />
-
       <rect
         id="overlay_play_border"
         :class="{ hide: !reachTrackList || menuOpen }"
@@ -60,10 +49,26 @@
         :width="dim.rectPlay.width"
         :height="dim.rectPlay.height"
         fill="transparent"
-        stroke="#eddedf"
+        :stroke="strokeColor"
+        stroke-width="1.5px"
+      />
+      <rect
+        id="overlay_border"
+        x="0"
+        y="0"
+        width="100%"
+        height="100%"
+        fill="transparent"
+        :stroke="strokeColor"
         stroke-width="2px"
       />
     </svg>
+    <!--     <img
+      src="@/assets/img/thorus.png"
+      :style="globeStyle"
+      id="overlay_img"
+      alt=""
+    /> -->
     <RoundButton
       id="clip_btn"
       :hide="hide || !reachTracks || menuOpen"
@@ -81,14 +86,23 @@
       <div class="line"></div>
       <div class="line"></div>
     </button>
+
+    <Counter
+      v-bind="{ progress }"
+      id="counter"
+      :class="{ hide: !reachTracks || menuOpen }"
+    />
+
+    <div id="controls" :class="{ hide: !reachTrackList || menuOpen }"></div>
   </div>
 </template>
 
 <script>
   import RoundButton from '@/components/RoundButton.vue';
+  import Counter from '@/components/Counter.vue';
   import {
     rem,
-    // numToUnit,
+    numToUnit,
     wWidth,
     wHeight,
     transform,
@@ -105,6 +119,7 @@
   export default {
     components: {
       RoundButton,
+      Counter,
     },
     data() {
       return {
@@ -131,8 +146,8 @@
           },
           rectPlay: {
             x: 0,
-            y: wHeight() - rem(18),
-            height: rem(15),
+            y: wHeight() - rem(15),
+            height: rem(12),
             width: '100%',
           },
         },
@@ -165,6 +180,17 @@
         const { tracks, list } = this.layout;
         return tracks.sectionHeight + list.sectionHeight + wHeight();
       },
+      strokeColor() {
+        return this.menuOpen ? '#181818' : '#eddedf';
+      },
+      globeStyle() {
+        return {
+          transform: transform({
+            translateY: numToUnit(this.progress / 2, '%'),
+            rotate: numToUnit(180, 'deg'),
+          }),
+        };
+      },
     },
     methods: {
       calcDimesions() {
@@ -183,7 +209,6 @@
           line: {
             style: {
               transform: transform({
-                // translate: [0, numToUnit(lineTranslateY)],
                 scale: lineScale,
               }),
             },
@@ -197,6 +222,12 @@
             ...innerRectDim(),
             y: 0,
             height: rem(6),
+          },
+          rectPlay: {
+            x: 0,
+            y: wHeight() - rem(W < 500 ? 8 : W < 650 ? 13 : 18),
+            height: rem(W < 500 ? 6 : W < 650 ? 9 : 12),
+            width: '100%',
           },
         };
       },
@@ -218,8 +249,8 @@
         const H = wHeight();
 
         this.progress = Math.min(
-          Math.max(((val - H / 2) / this.layout.tracks.sectionHeight) * 100, 0),
-          100,
+          Math.max((val - H / 2) / this.layout.tracks.sectionHeight, 0),
+          1,
         );
 
         // reach tracklist section
@@ -253,18 +284,18 @@
     @include block_padding;
     display: grid;
     grid-template-columns: 12rem 1fr 12rem;
-    grid-template-rows: 6rem 1fr 15rem;
+    grid-template-rows: 6rem 1fr 3rem 12rem;
 
     pointer-events: none;
 
     @media only screen and (max-width: 650px) {
       grid-template-columns: 9rem 1fr 9rem;
-      grid-template-rows: 6rem 1fr 10rem;
+      grid-template-rows: 6rem 1fr 1rem 9rem;
     }
 
     @media only screen and (max-width: 500px) {
       grid-template-columns: 6rem 1fr 6rem;
-      grid-template-rows: 6rem 1fr 11rem;
+      grid-template-rows: 6rem 1fr 5rem 6rem;
     }
 
     svg {
@@ -297,15 +328,7 @@
         }
       }
 
-      #circle {
-        transition-delay: 0.2s !important;
-        transition: 0.6s transform ease-in-out;
-        transform: scaleX(1) scaleY(1);
-        z-index: inherit;
-      }
-
       #line {
-        // transition-delay: 0.5s !important;
         transition: 0.6s transform ease-in-out;
       }
     }
@@ -347,7 +370,6 @@
 
       &:hover:before,
       &.active:before {
-        transform: scale(1, 1);
       }
 
       &:hover .line,
@@ -357,7 +379,7 @@
 
       .line {
         height: 2px;
-        width: 3rem;
+        width: 6rem;
         background-color: $light_pink;
         position: absolute;
         transition: 0.4s transform ease-in-out 0s,
@@ -370,6 +392,14 @@
         &:last-child {
           transform: translateY(0.5rem);
         }
+
+        @media only screen and (max-width: 650px) {
+          width: 4rem;
+        }
+
+        @media only screen and (max-width: 500px) {
+          width: 3rem;
+        }
       }
 
       &.active {
@@ -379,6 +409,48 @@
 
         .line:last-child {
           transform: translateY(0rem) rotate(135deg);
+        }
+      }
+    }
+
+    #overlay_img {
+      grid-column: 1 / 1;
+      grid-row: 2 / 2;
+      @include element_padding(right, 2);
+      align-self: top;
+      width: 100%;
+      transform: rotate(180deg);
+    }
+
+    #counter {
+      grid-column: 3 / 3;
+      grid-row: 2 / 2;
+      align-self: start;
+      @include element_margin(top, 1);
+    }
+
+    #controls {
+      grid-column: 1 / -1;
+      grid-row: 4 / 4;
+      height: 12rem;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      pointer-events: all;
+
+      &:before {
+        @include pseudo_full;
+        background-color: $light_pink_semi;
+        backdrop-filter: blur(25px);
+        transform: translateY(0);
+        transition: 0.3s transform ease-in-out;
+      }
+
+      &.hide {
+        pointer-events: none;
+
+        &:before {
+          transform: translateY(12rem) !important;
         }
       }
     }

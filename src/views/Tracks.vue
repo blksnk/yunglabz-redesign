@@ -6,7 +6,6 @@
   >
     <div data-scroll-target="#tracks" data-scroll-sticky data-scroll>
       <TrackVisual />
-      <Counter id="counter" />
     </div>
 
     <div
@@ -49,7 +48,6 @@
 
 <script>
   import TrackVisual from '@/components/TrackVisual.vue';
-  import Counter from '@/components/Counter.vue';
 
   import iconGlobe from '@/assets/svg/globe_cover.svg';
   import iconStar from '@/assets/svg/star.svg';
@@ -66,7 +64,6 @@
   export default {
     name: 'Tracks',
     components: {
-      Counter,
       TrackVisual,
     },
     data() {
@@ -94,7 +91,7 @@
         return this.$store.state.tracks;
       },
       icons() {
-        return [iconGlobe, iconStar, iconGlobe];
+        return [iconGlobe, iconStar, iconGlobe, iconStar];
       },
       dataLoaded() {
         return this.$store.state.dataLoaded;
@@ -210,7 +207,8 @@
       flex-direction: row;
       align-items: flex-end;
       justify-content: flex-start;
-      padding: 0 100vh;
+      padding-right: 100vh;
+      padding-left: 50vh;
       pointer-events: none;
       transition-delay: 1.2s;
       transition: 0.4s opacity linear;
@@ -223,11 +221,15 @@
 
       .title_container {
         padding-left: 3rem;
-        padding-bottom: 4rem;
+        padding-bottom: 4.5rem;
         display: flex;
         align-items: center;
         z-index: 2;
         justify-content: space-between;
+
+        @media only screen and (max-width: 650px) {
+          padding-bottom: 3.5rem;
+        }
 
         .title {
           color: transparent;
@@ -247,8 +249,12 @@
         }
 
         .icon {
-          height: 9vw;
+          height: 10rem;
           margin-left: 3rem;
+
+          @media only screen and (max-width: 650px) {
+            height: 5rem;
+          }
         }
       }
     }

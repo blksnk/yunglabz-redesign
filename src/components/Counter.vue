@@ -1,18 +1,47 @@
 <template>
   <div class="counter">
-    <span class="current">{{ current }}</span>
-    <div class="line">
-      <div id="progress" :style="{ ...style }"></div>
-    </div>
-    <span class="total">{{ total }}</span>
+    <svg
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns="http://www.w3.org/2000/svg"
+      id="counter_svg"
+    >
+      <line
+        x1="23%"
+        y1="50%"
+        x2="77%"
+        y2="50%"
+        stroke="#eddedf"
+        stroke-width="2px"
+      />
+      <circle
+        id="counter_track"
+        r="50%"
+        cx="50%"
+        cy="50%"
+        fill="transparent"
+        stroke-width="4px"
+      />
+      <circle
+        id="counter_progress"
+        r="50%"
+        cx="50%"
+        cy="50%"
+        fill="transparent"
+        :style="style"
+        stroke-width="8px"
+      />
+    </svg>
+    <div class="current">{{ current }}</div>
+    <div class="total">{{ total }}</div>
   </div>
 </template>
 
 <script>
-  import { transform } from '@/utils/layout';
+  import { rem, transform, numToUnit } from '@/utils/layout';
 
   export default {
     name: 'Counter',
+    props: ['progress'],
     computed: {
       current() {
         return this.$store.state.scrollIndex + 1;
@@ -22,8 +51,10 @@
       },
       style() {
         return {
+          strokeDashoffset: 2 * Math.PI * rem(6) * (1 - this.progress),
+          strokeDasharray: 2 * Math.PI * rem(6),
           transform: transform({
-            scaleX: this.current / this.total,
+            rotate: numToUnit(180, 'deg'),
           }),
         };
       },
@@ -35,51 +66,60 @@
   @import '@/scss/_vars.scss';
 
   .counter {
-    height: 1.5rem;
-    display: grid;
-    grid-template-columns: 0.5rem 4fr 0.5rem;
+    height: 12rem;
+    width: 12rem;
+    @include element_padding($direction: 'all', $mul: 0.5);
+    transition: 0.3s transform ease-out;
+    transition-delay: 0.15s;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    // justify-content: space-between;
-    // pointer-events: none;
-    grid-column-gap: 1.25rem;
-    z-index: 50;
+    justify-content: center;
+    gap: 3rem;
+    position: relative;
 
     @media only screen and (max-width: 650px) {
-      grid-column-gap: 0.75rem;
-    }
-
-    .current,
-    .total {
-      @include font_tiny;
-      color: $hard_purple;
-    }
-
-    .total {
-      color: $lilac;
-    }
-
-    .line {
-      position: relative;
-      height: 2px;
+      height: 9rem;
       width: 9rem;
-      flex-grow: 1;
-      background-color: $lilac;
+      gap: 2rem;
+    }
 
-      @media only screen and (max-width: 650px) {
-        width: 6rem;
-        height: 1px;
+    @media only screen and (max-width: 500px) {
+      height: 6rem;
+      gap: 1.5rem;
+      width: 6rem;
+    }
+
+    &.hide {
+      transition-delay: 0s;
+      transition-timing-function: ease-in;
+      transform: scale(0, 0);
+    }
+
+    #counter_svg {
+      height: 100%;
+      width: 100%;
+      border-radius: 100%;
+      overflow: hidden;
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      #counter_track {
+        stroke: $light_pink;
       }
 
-      #progress {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        background-color: $hard_purple;
-        transform: scaleX(1);
-        transform-origin: center left;
-        transition: 0.3s transform ease-out;
+      #counter_progress {
+        stroke: $hard_purple;
+      }
+    }
+
+    div {
+      @include font_small;
+      color: $light_pink;
+
+      &.total {
+        color: $light_pink_semi;
       }
     }
   }

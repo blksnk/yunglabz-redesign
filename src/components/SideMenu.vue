@@ -110,6 +110,7 @@
       pointer-events: none;
       text-align: left;
       @include block_padding;
+      padding-top: 9rem !important;
 
       &.active {
         transition: 0.4s opacity linear 0.4s, 0s visibility linear 0s;
@@ -146,7 +147,7 @@
         }
 
         p {
-          color: $violet;
+          color: $dark;
         }
 
         ul {
@@ -182,12 +183,12 @@
 
             button {
               @include font_big;
-              color: $violet;
+              color: transparent;
               transition: 0.2s opacity linear;
+              -webkit-text-stroke: 2px $dark;
 
               &:hover {
-                -webkit-text-stroke: 2px $violet;
-                color: transparent;
+                color: $dark;
               }
             }
           }

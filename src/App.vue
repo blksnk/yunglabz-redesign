@@ -114,16 +114,6 @@
   @import '@/scss/_vars.scss';
 
   @font-face {
-    font-family: 'maelstrom sans';
-    src: url('./assets/fonts/maelstrom-sans.otf') format('opentype');
-  }
-
-  @font-face {
-    font-family: 'maelstrom bold';
-    src: url('./assets/fonts/maelstrom-bold.otf') format('opentype');
-  }
-
-  @font-face {
     font-family: 'compagnie wide';
     src: url('./assets/fonts/compagnie-wide.otf') format('opentype');
   }
@@ -134,8 +124,13 @@
   }
 
   @font-face {
-    font-family: 'accent';
-    src: url('./assets/fonts/accent.ttf') format('truetype');
+    font-family: 'autobahn';
+    src: url('./assets/fonts/autobahn_edited.otf') format('opentype');
+  }
+
+  @font-face {
+    font-family: 'monument';
+    src: url('./assets/fonts/monument_bold.otf') format('opentype');
   }
 
   * {
@@ -157,8 +152,7 @@
   body,
   html {
     width: 100%;
-    height: 100%;
-    overflow: hidden;
+    height: 100vh;
   }
 
   h1 {
@@ -173,7 +167,6 @@
   h3 {
     @include font_big;
     color: $dark_purple;
-    margin-top: -0.2vw;
   }
 
   h4 {
@@ -215,8 +208,7 @@
 
   #app {
     width: 100%;
-    height: 100%;
-    overflow: hidden;
+    height: 100vh;
     z-index: -1;
     background-color: $blue;
 
@@ -230,7 +222,7 @@
   }
 
   #spacer2 {
-    background-color: $dark_purple;
+    background-color: $dark;
   }
 
   // wrap overlay
@@ -299,7 +291,6 @@
     background-color: $hard_purple;
     opacity: 0.75;
     width: 7px;
-    border-radius: 10px;
     margin: 2px;
     cursor: -webkit-grab;
     cursor: grab;

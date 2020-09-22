@@ -16,17 +16,28 @@
       <h1>labz</h1>
     </div>
     <div class="cover_mask btm"></div>
+    <div id="cover_img">
+      <img src="@/assets/img/disk.png" alt="" />
+    </div>
   </section>
 </template>
 
 <style lang="scss">
   @import '@/scss/_vars.scss';
 
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
   #cover {
     height: 100vh;
     width: 100%;
     max-width: 100%;
-    grid-column-gap: 3rem;
     align-items: center;
     position: relative;
     background-image: linear-gradient(to top, $dark, $dark_purple);
@@ -63,14 +74,9 @@
       z-index: 40;
 
       h1 {
-        transform: rotate(45deg);
         position: relative;
         z-index: 40;
-
-        &:first-child {
-          margin-bottom: 1.5rem;
-          padding-left: 1.5rem;
-        }
+        margin: 0 !important;
       }
     }
 
@@ -93,6 +99,23 @@
       &.btm {
         background-image: linear-gradient(to top, $dark 66%, transparent);
         bottom: 0;
+      }
+    }
+
+    #cover_img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        height: 70%;
+        animation: spin 10s linear 0s infinite forwards;
       }
     }
   }

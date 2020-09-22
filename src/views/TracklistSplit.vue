@@ -1,66 +1,25 @@
 <template>
   <section id="tracklist" ref="page">
-    <div
-      id="aside"
-      data-scroll
-      data-scroll-sticky
-      data-scroll-target="#tracklist"
-    >
-      <span>
-        yunglabz &mdash; iterations
-        <br />
-        prod by sizelem
-      </span>
-      <div class="line"></div>
-    </div>
+    <ul id="list">
+      <li
+        v-for="(track, index) in tracks"
+        :key="'tracktitle' + index"
+        :class="{
+          active: trackIndex === index,
+        }"
+        @click="() => selectTrack(index)"
+      >
+        <h3 :class="{ track_title: true, glitch: trackIndex === index }">
+          {{ track.title }}
+        </h3>
 
-    <main>
-      <!-- <div id="controls">
-        <div id="info">
-          <span id="play_info">current track</span>
+        <span class="artist">{{ formatArtists(track.artistNames) }}</span>
 
-          <span id="active_track_title">
-            {{ activeTrack.title }}
-          </span>
-        </div>
-
-        <Button
-          id="play_btn"
-          title="play"
-          activeTitle="pause"
-          :active="isPlaying"
-          @click="playPause"
-        />
-        <div id="progress" ref="progress">
-          <div id="bar" :style="progressBarStyle"></div>
-          <div id="thumb" :style="progressThumbStyle"></div>
-        </div>
-      </div> -->
-
-      <div id="section_title">tracklist</div>
-
-      <ul id="list">
-        <li
-          v-for="(track, index) in tracks"
-          :key="'tracktitle' + index"
-          :class="{
-            active: trackIndex === index,
-          }"
-          @click="() => selectTrack(index)"
+        <span class="track_duration"
+          >{{ track.duration.minutes }}:{{ track.duration.seconds }}</span
         >
-          <h3 :class="{ track_title: true, glitch: trackIndex === index }">
-            {{ track.title }}
-          </h3>
-
-          <span class="artist">{{ formatArtists(track.artistNames) }}</span>
-
-          <span class="track_duration"
-            >{{ track.duration.minutes }}:{{ track.duration.seconds }}</span
-          >
-        </li>
-      </ul>
-    </main>
-    <audio src="/aokigahara.mp3" controls ref="audio"></audio>
+      </li>
+    </ul>
   </section>
 </template>
 
@@ -150,139 +109,41 @@
 
   #tracklist {
     @include block_padding;
-    padding-bottom: 12rem;
-    display: flex;
     color: $light_pink;
     width: 100%;
     min-height: 100vh;
     position: relative;
-    background-image: linear-gradient(to bottom, $dark_purple, $blue);
+    background-color: $dark;
+    padding-bottom: 15rem;
 
-    #aside {
-      height: calc(100vh - 12rem);
-      width: 2.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      top: 0;
-
-      .line {
-        width: 2px;
-        flex-grow: 1;
-        margin-right: 0.5rem;
-        background-image: linear-gradient(to bottom, $lilac, $hard_purple);
-      }
-
-      span {
-        @include font_tiny;
-        color: $lilac;
-        text-orientation: mixed;
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
-        margin-bottom: 1.5rem;
-      }
+    @media only screen and (max-width: 650px) {
+      padding-bottom: 12rem;
     }
 
-    main {
-      @include block_padding;
-      padding-top: 0;
-      padding-right: 0;
-      padding-bottom: 0;
-      flex: 1;
-
-      #section_title {
-        @include font_tiny;
-        @include element_margin(bottom, 1);
-        color: $lilac;
-      }
-
-      #controls {
-        margin-top: 6rem;
-        margin-bottom: 9rem;
-        padding-right: 6rem;
-        position: sticky;
-        top: 0;
-        width: 100%;
-
-        display: grid;
-        grid-column-gap: 3rem;
-        grid-row-gap: 3rem;
-        grid-template-columns: max-content 1fr;
-        grid-template-rows: auto 3rem;
-
-        #info {
-          grid-column: 1 / -1;
-          grid-row: 1 / 1;
-
-          #play_info {
-            @include font_tiny;
-            display: block;
-            margin-bottom: 1.5rem;
-            color: $black_shadows;
-          }
-
-          #active_track_title {
-            @include font_big;
-          }
-        }
-
-        #play_btn {
-          grid-column: 1 / 1;
-          grid-row: 2 / 2;
-        }
-
-        #progress {
-          grid-column: 2 / 2;
-          grid-row: 2 / 2;
-          position: relative;
-          width: 100%;
-          height: 1px;
-          background-color: $lilac;
-          align-self: center;
-
-          #bar {
-            position: absolute;
-            top: -1.5px;
-            left: 0;
-            height: 3px;
-            background-color: $hard_purple;
-            width: 0%;
-            transition: 0.1s width linear;
-          }
-
-          #thumb {
-            position: absolute;
-            top: -0.5rem;
-            left: -0.5rem;
-            height: 1rem;
-            width: 1rem;
-            border-radius: 1rem;
-            transform: translateX(0);
-            background-color: $light_pink;
-            cursor: grab;
-          }
-        }
-      }
+    @media only screen and (max-width: 650px) {
+      padding-bottom: 9rem;
     }
 
     #list {
-      border-bottom: 1px solid $lilac;
+      @include block_padding;
 
       li {
         border-top: 1px solid $lilac;
-        padding: 1.5rem 0;
+        @include element_padding(bottom, 2);
+        @include element_padding(top, 2);
+
         display: grid;
         grid-template-columns: 1fr max-content;
         grid-template-rows: auto auto;
-        grid-row-gap: 1.5rem;
         width: 100%;
         cursor: pointer;
 
         .track_title {
-          grid-column: 1 / 1;
+          grid-column: 1 / -1;
           grid-row: 1 / 1;
-          color: $lilac;
+          color: $light_pink_semi;
           transition: 0.15s color linear;
+          @include element_margin(bottom, 0.5);
         }
 
         .artist {
@@ -295,7 +156,7 @@
 
         .track_duration {
           grid-column: 2 / 2;
-          grid-row: 1 / 1;
+          grid-row: 2 / 2;
           @include font_tiny;
           color: $purple;
           transition: 0.15s color linear;
@@ -313,10 +174,6 @@
           color: $lilac;
         }
       }
-    }
-
-    audio {
-      display: none;
     }
   }
 </style>
